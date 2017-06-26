@@ -83,7 +83,7 @@ function request_assemble_curl_headers ($request_headers) {
 /**
  * request: cURL session wrapper.
  */
-function request (string $url, string $method = 'GET', string $body = null, array $headers = []): array {
+function request (string $url, array $headers = [], string $method = 'GET', string $body = null): array {
   // create cURL session
   $curl_ch = curl_init($url);
 
@@ -126,13 +126,16 @@ function request (string $url, string $method = 'GET', string $body = null, arra
   ];
 }
 
-$prez = request('https://prezzemolo.ga/', 'POST', 'OK=MAN', [
+$site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
+$res = request($site_addr, [
   'User-Agent' => sprintf('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.104 Safari/537.36 PHP/%s', PHP_VERSION)
 ]);
-$prez_body = $prez['body'];
-$prez_headers = $prez['headers'];
-$prez_info = $prez['info'];
-var_dump($prez_body);
-var_dump($prez_headers->{'content-type'});
-var_dump($prez_info['request_header']);
+$res_body = $res['body'];
+$res_headers = $res['headers'];
+$res_isHTML = preg_match('/^.*\/html(:?;.*)?$/', $res_headers->{'content-type'}) === 1;
+$res_body_DOM = $res_isHTML ? DOMDocument::loadHTML($res_body) : NULL;
+$res_info = $res['info'];
+var_dump($res_body_DOM->getElementsByTagName('title')[0] ?? $res_body);
+var_dump($res_headers->{'content-type'});
+var_dump($res_info['request_header']);
 ?>
