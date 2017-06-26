@@ -3,8 +3,11 @@ function strcasecmpbool ($str1, $str2) {
   return strcasecmp($str1, $str2) === 0;
 }
 
-class Headers {
+class HeadersReadOnlyException extends Exception {}
+
+class Headers implements ArrayAccess {
   private $headers = [];
+  private const E_READ_ONLY = "Headers objects are always read only.";
 
   private function preen_header_field_name ($raw_header_field_name) {
     return mb_strtolower($raw_header_field_name);
@@ -44,18 +47,26 @@ class Headers {
     }
   }
 
-  /**
-   * http://php.net/manual/ja/language.oop5.magic.php
-   */
-  public function __get ($raw_header_field_name) {
+  public function offsetGet ($raw_header_field_name) {
     $header_field_name = $this->preen_header_field_name($raw_header_field_name);
     return $this->headers[$header_field_name] ?? null;
   }
 
-  public function __isset ($raw_header_field_name) {
+  public function offsetExists ($raw_header_field_name) {
     $header_field_name = $this->preen_header_field_name($raw_header_field_name);
     return isset($this->headers[$header_field_name]);
   }
+
+  /*
+   * user can't write to this ArrayLike Object
+   */
+   public function offsetSet ($raw_header_field_name, $header_field_value) {
+     throw new HeadersReadOnlyException($this::E_READ_ONLY);
+   }
+
+   public function offsetUnset ($raw_header_field_name) {
+     throw new HeadersReadOnlyException($this::E_READ_ONLY);
+   }
 }
 
 
@@ -83,7 +94,7 @@ function request_assemble_curl_headers ($request_headers) {
 /**
  * request: cURL session wrapper.
  */
-function request (string $url, array $headers = [], string $method = 'GET', string $body = null): array {
+function request (string $method, string $url, array $headers = [], string $body = null): array {
   // create cURL session
   $curl_ch = curl_init($url);
 
@@ -101,7 +112,7 @@ function request (string $url, array $headers = [], string $method = 'GET', stri
   }
 
   // set headers
-  define('ANALIZZATORE_VERSION', '0.0.0');
+  define('ANALIZZATORE_VERSION', '0.0.0-unstage');
   $request_headers = request_merge_headers([
     'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', ANALIZZATORE_VERSION)
   ], $headers);
@@ -127,15 +138,14 @@ function request (string $url, array $headers = [], string $method = 'GET', stri
 }
 
 $site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
-$res = request($site_addr, [
-  'User-Agent' => sprintf('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.104 Safari/537.36 PHP/%s', PHP_VERSION)
-]);
+$res = request('GET', $site_addr);
 $res_body = $res['body'];
 $res_headers = $res['headers'];
-$res_isHTML = preg_match('/^.*\/html(:?;.*)?$/', $res_headers->{'content-type'}) === 1;
+$res_isHTML = preg_match('/^.*\/html(:?;.*)?$/', $res_headers['content-type']) === 1;
 $res_body_DOM = $res_isHTML ? DOMDocument::loadHTML($res_body) : NULL;
 $res_info = $res['info'];
-var_dump($res_body_DOM->getElementsByTagName('title')[0] ?? $res_body);
-var_dump($res_headers->{'content-type'});
-var_dump($res_info['request_header']);
+var_dump($res_body_DOM->getElementsByTagName('title')->item(0)->textContent ?? $res_body);
+var_dump($res_headers['content-type']);
+var_dump((new Headers($res_info['request_header']))['user-AGent']);
+var_dump($res_info['http_code']);
 ?>
