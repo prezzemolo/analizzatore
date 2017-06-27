@@ -33,7 +33,7 @@ function request_assemble_curl_headers ($request_headers) {
 /**
  * request: cURL session wrapper.
  */
-function request (string $method, string $url, array $headers = [], string $body = null): array {
+function request (string $method, string $url, array $headers = [], string $body = null, bool $follow_redirect = true): array {
   // create cURL session
   $curl_ch = curl_init($url);
 
@@ -66,7 +66,10 @@ function request (string $method, string $url, array $headers = [], string $body
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HEADER => true,
     CURLINFO_HEADER_OUT => true,
-    CURLOPT_TIMEOUT => 5
+    CURLOPT_TIMEOUT => 5,
+    // follow redirection 5 times
+    CURLOPT_FOLLOWLOCATION => $follow_redirect,
+    CURLOPT_MAXREDIRS => 5
   ]);
 
   // set response & informations
@@ -79,16 +82,23 @@ function request (string $method, string $url, array $headers = [], string $body
   }
 
   curl_close($curl_ch);
+
+  // cut header & body from raw response
   $raw_header = substr($response, 0, $informations['header_size']);
   $headers = new Headers($raw_header);
   $body = substr($response, $informations['header_size']);
+
+  // decode gzip if body is encorded
   if ($headers['content-encoding'] === 'gzip') {
     $decoded_body = gzdecode($body);
   }
+
   return [
     'body' => $decoded_body ?? $body,
     'headers' => $headers,
-    'info' => $informations
+    'info' => $informations,
+    'status_code' => $status_code,
+    'url' => $informations['url']
   ];
 }
 ?>
