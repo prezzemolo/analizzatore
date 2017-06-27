@@ -5,11 +5,8 @@ namespace analizzatore\utils;
 function ogp_extractor ($meta_DOMNodeList) {
   $ogp_tags = [];
   foreach ($meta_DOMNodeList as $meta_DOMNode) {
-   /**
-    * check existance of attributes
-    * http://php.net/manual/en/class.domnode.php#domnode.props.attributes
-    * note: no special reason for disuse hasElements method
-    */
+   // check existance of attributes
+   // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
    if ($meta_DOMNode->attributes === null) continue;
    // skip non OGP tag
    if (!$meta_DOMNode->hasAttribute('property')
@@ -28,10 +25,8 @@ function metadata_extractor ($meta_DOMNodeList) {
   $metadata = [];
 
   foreach ($meta_DOMNodeList as $meta_DOMNode) {
-   /**
-    * check existance of attributes
-    * http://php.net/manual/en/class.domnode.php#domnode.props.attributes
-    */
+   // check existance of attributes
+   // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
    if ($meta_DOMNode->attributes === null) continue;
    // skip non metadata tag
    if (!$meta_DOMNode->hasAttribute('name')
@@ -48,10 +43,8 @@ function metadata_extractor ($meta_DOMNodeList) {
 
 function canonical_extractor ($link_DOMNodeList) {
   foreach ($link_DOMNodeList as $link_DOMNode) {
-   /**
-    * check existance of attributes
-    * http://php.net/manual/en/class.domnode.php#domnode.props.attributes
-    */
+   // check existance of attributes
+   // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
    if ($link_DOMNode->attributes === null) continue;
    // skip no rel & href in attributes
    if (!$link_DOMNode->hasAttribute('rel')
