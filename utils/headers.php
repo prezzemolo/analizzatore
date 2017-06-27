@@ -3,11 +3,11 @@
 namespace analizzatore\utils;
 
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'exceptions.php']);
 
 use Exception;
 use ArrayAccess;
-
-class HeadersReadOnlyException extends Exception {}
+use analizzatore\exceptions\HeadersReadOnlyException;
 
 class Headers implements ArrayAccess {
   private $headers = [];

@@ -6,7 +6,6 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 
 use DOMDocument;
-use analizzatore\utils\Headers;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor};
 
 $site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
