@@ -6,7 +6,7 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 
 use DOMDocument;
-use function analizzatore\utils\{request, ogp_extractor, metadata_extractor};
+use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, canonical_extractor};
 
 $site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
 $res = request('GET', $site_addr);
@@ -20,6 +20,8 @@ if (isset($res_body_DOM_head)) {
   $meta = $res_body_DOM_head->getElementsByTagName('meta');
   var_dump(ogp_extractor($meta));
   var_dump(metadata_extractor($meta));
+  $link = $res_body_DOM_head->getElementsByTagName('link');
+  var_dump(canonical_extractor($link));
 }
 $res_info = $res['info'];
 var_dump($res_headers['Content-encoding']);
