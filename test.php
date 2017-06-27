@@ -137,6 +137,30 @@ function request (string $method, string $url, array $headers = [], string $body
   ];
 }
 
+function extract_ogp ($meta_DOMNodeList) {
+  $ogp_tags = [];
+  foreach ($meta_DOMNodeList as $meta_DOMNode) {
+   /**
+    * check existance of attributes
+    * http://php.net/manual/en/class.domnode.php#domnode.props.attributes
+    * note: no special reason for disuse hasElements method
+    */
+   if ($meta_DOMNode->attributes === null) {
+     continue;
+   }
+   if ($meta_DOMNode->attributes->getNamedItem('property') === null) {
+     continue;
+   }
+   if (substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 0, 3) !== 'og:') {
+     continue;
+   }
+   $property = substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 3);
+   $content = $meta_DOMNode->attributes->getNamedItem('content')->textContent;
+   $ogp_tags[$property] = $content;
+ }
+ return $ogp_tags;
+}
+
 $site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
 $res = request('GET', $site_addr);
 $res_body = $res['body'];
@@ -145,6 +169,7 @@ $res_isHTML = preg_match('/^.*\/html(:?;.*)?$/', $res_headers['content-type']) =
 $res_body_DOM = $res_isHTML ? DOMDocument::loadHTML($res_body) : NULL;
 $res_info = $res['info'];
 var_dump($res_body_DOM->getElementsByTagName('title')->item(0)->textContent ?? $res_body);
+var_dump(extract_ogp($res_body_DOM->getElementsByTagName('meta')));
 var_dump($res_headers['content-type']);
 var_dump((new Headers($res_info['request_header']))['user-AGent']);
 var_dump($res_info['http_code']);
