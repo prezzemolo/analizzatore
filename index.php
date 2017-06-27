@@ -41,7 +41,7 @@ try {
   }
 
   // deny no HTTP/HTTPS url
-  if (!preg_match('/^(http:)|(https:)\/\/)/', $_GET['url'])) {
+  if (!preg_match('/^(http:)|(https:)\/\//', $_GET['url'])) {
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter must start with 'http://' or 'https://'.", 400);
   }
 
@@ -56,25 +56,25 @@ try {
   $result = request('GET', $param_url, $request_header);
 
   // if getting no HTML, raise error
-  if (!preg_match('/^.*\/html(:?;.*)?$/', $result['headers']['content-type'])) {
+  if (!preg_match('/\/html/', $result['headers']['content-type'])) {
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
   }
 
   // DOM!
   $ROOT_DOM = DOMDocument::loadHTML($result['body']);
-  $HTML_DOM->getElementsByTagName('html')->item(0);
+  $HTML_DOM = $ROOT_DOM->getElementsByTagName('html')->item(0);
   if (!$HTML_DOM) throw new DenyException("Can't parse HTML.". "Server can't parse HTML from url.", 500);
   $HEAD_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
   if (!$HEAD_DOM) throw new DenyException("Missing head tag in HTML.". "Server can't find head tag in HTML from url.", 500);
-  $title_element = $res_body_DOM_head->getElementsByTagName('title')->item(0);
+  $title_element = $HEAD_DOM->getElementsByTagName('title')->item(0);
   if (!$title_element) throw new DenyException("Missing title tag in HTML.", "Server can't find title tag in HTML from url.", 500);
 
   // extract informations from DOM
   $meta_elements = $HEAD_DOM->getElementsByTagName('meta');
-  $ogp = ogp_extractor($meta_elements);
-  $metadata = metadata_extractor($meta);
+  $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
+  $metadata = isset($meta_elements) ? metadata_extractor($meta) : [];
   $link_elements = $HEAD_DOM->getElementsByTagName('link');
-  $canonical = canonical_extractor($link_elements);
+  $canonical = isset($link_elements) ? canonical_extractor($link_elements) : [];
 
   /**
    * assemble response dict
