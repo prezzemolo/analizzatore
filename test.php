@@ -102,19 +102,26 @@ function request (string $method, string $url, array $headers = [], string $body
   if (strcasecmpbool($method, 'HEAD')) {
     // OMG! why we can't use CURLOPT_CUSTOMREQUEST for HEAD?
     curl_setopt($curl_ch, CURLOPT_NOBODY, true);
-  } else if (strcasecmpbool($method, 'GET') !== true) {
+  } else if (!strcasecmpbool($method, 'GET')) {
     curl_setopt($curl_ch, CURLOPT_CUSTOMREQUEST, $method);
   }
 
   // set body
-  if ($body !== null) {
+  if (isset($body)) {
+    // block human error!!!!!
+    if (strcasecmpbool($method, 'GET')) {
+      throw new Exception('You can not set body when uses GET method.');
+    }
+    var_dump($body);
     curl_setopt($curl_ch, CURLOPT_POSTFIELDS, $body);
   }
 
   // set headers
   define('ANALIZZATORE_VERSION', '0.0.0-unstage');
   $request_headers = request_merge_headers([
-    'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', ANALIZZATORE_VERSION)
+    'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', ANALIZZATORE_VERSION),
+    'Accept-Language' => 'en',
+    'Accept-Encoding' => 'gzip, identity'
   ], $headers);
   curl_setopt($curl_ch, CURLOPT_HTTPHEADER, request_assemble_curl_headers($request_headers));
 
@@ -130,8 +137,11 @@ function request (string $method, string $url, array $headers = [], string $body
   $raw_header = substr($response, 0, $informations['header_size']);
   $headers = new Headers($raw_header);
   $body = substr($response, $informations['header_size']);
+  if ($headers['content-encoding'] === 'gzip') {
+    $decoded_body = gzdecode($body);
+  }
   return [
-    'body' => $body,
+    'body' => $decoded_body ?? $body,
     'headers' => $headers,
     'info' => $informations
   ];
@@ -148,10 +158,14 @@ function extract_ogp ($meta_DOMNodeList) {
    if ($meta_DOMNode->attributes === null) {
      continue;
    }
-   if ($meta_DOMNode->attributes->getNamedItem('property') === null) {
+   // skip non OGP tag
+   if ($meta_DOMNode->attributes->getNamedItem('property') === null
+    || substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 0, 3) !== 'og:') {
      continue;
    }
-   if (substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 0, 3) !== 'og:') {
+   // skip no content
+   if (!$meta_DOMNode->attributes->getNamedItem('content')
+    || !$meta_DOMNode->attributes->getNamedItem('content')->textContent) {
      continue;
    }
    $property = substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 3);
@@ -167,10 +181,13 @@ $res_body = $res['body'];
 $res_headers = $res['headers'];
 $res_isHTML = preg_match('/^.*\/html(:?;.*)?$/', $res_headers['content-type']) === 1;
 $res_body_DOM = $res_isHTML ? DOMDocument::loadHTML($res_body) : NULL;
+$res_body_DOM_head = $res_body_DOM->getElementsByTagName('head')->item(0);
+if (isset($res_body_DOM_head)) {
+  var_dump($res_body_DOM_head->getElementsByTagName('title')->item(0)->textContent);
+  var_dump(extract_ogp($res_body_DOM_head->getElementsByTagName('meta')));
+}
 $res_info = $res['info'];
-var_dump($res_body_DOM->getElementsByTagName('title')->item(0)->textContent ?? $res_body);
-var_dump(extract_ogp($res_body_DOM->getElementsByTagName('meta')));
-var_dump($res_headers['content-type']);
+var_dump($res_headers['Content-encoding']);
 var_dump((new Headers($res_info['request_header']))['user-AGent']);
 var_dump($res_info['http_code']);
 ?>
