@@ -2,8 +2,8 @@
 
 namespace analizzatore;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'utils' . DIRECTORY_SEPARATOR . 'request.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'utils' . DIRECTORY_SEPARATOR . 'extractors.php';
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 
 use DOMDocument;
 use analizzatore\utils\Headers;

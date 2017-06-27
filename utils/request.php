@@ -2,8 +2,12 @@
 
 namespace analizzatore\utils;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bool-wrappers.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'headers.php';
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'constants.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
+
+use Exception;
+use analizzatore\Constants;
 
 /**
  * request_merge_headers
@@ -18,7 +22,7 @@ function request_merge_headers ($arr1, $arr2) {
  * assemble an array for cURL CURLOPT_HTTPHEADER from an array key/value request header.
 */
 function request_assemble_curl_headers ($request_headers) {
-  $headers = array();
+  $headers = [];
   foreach ($request_headers as $request_header_field_name => $request_header_field_value) {
     $header = sprintf('%s: %s', mb_convert_case($request_header_field_name, MB_CASE_TITLE), $request_header_field_value);
     array_push($headers, $header);
@@ -47,14 +51,12 @@ function request (string $method, string $url, array $headers = [], string $body
     if (strcasecmpbool($method, 'GET')) {
       throw new Exception('You can not set body when uses GET method.');
     }
-    var_dump($body);
     curl_setopt($curl_ch, CURLOPT_POSTFIELDS, $body);
   }
 
   // set headers
-  define('ANALIZZATORE_VERSION', '0.0.0-unstage');
   $request_headers = request_merge_headers([
-    'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', ANALIZZATORE_VERSION),
+    'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', Constants::ANALIZZATORE_VERSION),
     'Accept-Language' => 'en',
     'Accept-Encoding' => 'gzip, identity'
   ], $headers);

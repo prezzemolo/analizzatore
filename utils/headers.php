@@ -2,7 +2,7 @@
 
 namespace analizzatore\utils;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bool-wrappers.php';
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
 
 use Exception;
 use ArrayAccess;
