@@ -16,11 +16,11 @@ try {
    * accept CORS
    * if OPTIONS access, close conn with 204.
    */
-  header('Access-Control-Allow-Origin', '*');
+  header('Access-Control-Allow-Origin: *');
   if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
-    header('Access-Control-Max-Age', 24 * 60 * 60);
-    header('Access-Control-Allow-Methods', 'GET');
+    header(sprintf('Access-Control-Max-Age: %d', 24 * 60 * 60));
+    header('Access-Control-Allow-Methods: GET');
     die();
   }
 
@@ -39,7 +39,7 @@ try {
   http_response_code(204);
 // error catch blocks use RFC7807.
 } catch (DenyException $e) {
-  header('Content-Type', 'application/problem+json');
+  header('Content-Type: application/problem+json');
   http_response_code($e->getCode());
   echo json_encode([
     'type' => 'about:blank',
@@ -47,7 +47,7 @@ try {
     'detail' => $e->getMessage()
   ]);
 } catch (Exception $e) {
-  header('Content-Type', 'application/problem+json');
+  header('Content-Type: application/problem+json');
   http_response_code(500);
   $traceback = $e->getTrace();
   echo json_encode([
