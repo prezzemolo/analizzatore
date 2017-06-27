@@ -159,7 +159,7 @@ function extract_ogp ($meta_DOMNodeList) {
      continue;
    }
    // skip non OGP tag
-   if ($meta_DOMNode->attributes->getNamedItem('property') === null
+   if (!$meta_DOMNode->attributes->getNamedItem('property')
     || substr($meta_DOMNode->attributes->getNamedItem('property')->textContent, 0, 3) !== 'og:') {
      continue;
    }
@@ -175,6 +175,35 @@ function extract_ogp ($meta_DOMNodeList) {
  return $ogp_tags;
 }
 
+function extract_metadata ($meta_DOMNodeList) {
+  $matadata = [];
+
+  foreach ($meta_DOMNodeList as $meta_DOMNode) {
+   /**
+    * check existance of attributes
+    * http://php.net/manual/en/class.domnode.php#domnode.props.attributes
+    * note: no special reason for disuse hasElements method
+    */
+   if ($meta_DOMNode->attributes === null) {
+     continue;
+   }
+   // skip non metadata tag
+   if (!$meta_DOMNode->attributes->getNamedItem('name')
+    || !$meta_DOMNode->attributes->getNamedItem('name')->textContent) {
+     continue;
+   }
+   // skip no content
+   if (!$meta_DOMNode->attributes->getNamedItem('content')
+    || !$meta_DOMNode->attributes->getNamedItem('content')->textContent) {
+     continue;
+   }
+   $name = $meta_DOMNode->attributes->getNamedItem('name')->textContent;
+   $content = $meta_DOMNode->attributes->getNamedItem('content')->textContent;
+   $metadata[$name] = $content;
+  }
+  return $metadata;
+}
+
 $site_addr = $argv[1] ?? 'https://prezzemolo.ga/';
 $res = request('GET', $site_addr);
 $res_body = $res['body'];
@@ -184,7 +213,9 @@ $res_body_DOM = $res_isHTML ? DOMDocument::loadHTML($res_body) : NULL;
 $res_body_DOM_head = $res_body_DOM->getElementsByTagName('head')->item(0);
 if (isset($res_body_DOM_head)) {
   var_dump($res_body_DOM_head->getElementsByTagName('title')->item(0)->textContent);
-  var_dump(extract_ogp($res_body_DOM_head->getElementsByTagName('meta')));
+  $meta = $res_body_DOM_head->getElementsByTagName('meta');
+  var_dump(extract_ogp($meta));
+  var_dump(extract_metadata($meta));
 }
 $res_info = $res['info'];
 var_dump($res_headers['Content-encoding']);
