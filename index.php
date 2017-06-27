@@ -24,10 +24,10 @@ try {
     die();
   }
 
-  // appear GET only
-  if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+  // appear GET, HEAD accesses only (in addition, OPTIONS allowed in above section)
+  if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'HEAD') {
     throw new DenyException(sprintf("Method '%s' is not allowed.", $_SERVER['REQUEST_METHOD']),
-      'you can use GET method only.', 405);
+      'you can use GET or HEAD method only.', 405);
   }
 
   // appear / only
