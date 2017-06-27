@@ -47,12 +47,13 @@ try {
 
   // set nesessary values
   $param_url = $_GET['url'];
-  $param_lang = $_GET['lang'] ?? 'en';
+  $param_lang = $_GET['lang'];
+  $request_header = $param_lang ? [
+    'Accept-Language' => $param_lang
+  ] : [];
 
   // clawl
-  $result = request('GET', $param_url, [
-    'Accept-Language' => $param_lang,
-  ]);
+  $result = request('GET', $param_url, $request_header);
 
   // if getting no HTML, raise error
   if (!preg_match('/^.*\/html(:?;.*)?$/', $result['headers']['content-type'])) {
