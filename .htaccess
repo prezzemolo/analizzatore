@@ -1,3 +1,4 @@
+DirectorySlash Off
 RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_URI} "!^/index.php$"
