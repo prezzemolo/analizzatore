@@ -31,7 +31,7 @@ function ogp_extractor ($meta_DOMNodeList) {
 }
 
 function metadata_extractor ($meta_DOMNodeList) {
-  $matadata = [];
+  $metadata = [];
 
   foreach ($meta_DOMNodeList as $meta_DOMNode) {
    /**
