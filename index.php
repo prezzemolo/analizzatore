@@ -9,7 +9,7 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
 use DOMDocument;
 use Exception;
 use analizzatore\exceptions\DenyException;
-use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, canonical_extractor};
+use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
 try {
   /**
@@ -31,7 +31,7 @@ try {
   }
 
   // appear / only
-  if (!isset($_SERVER['REDIRECT_URL']) || $_SERVER['REDIRECT_URL'] !== '/') {
+  if (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) !== '/') {
     throw new DenyException('There are no content.', "Haven't you made a mistake?", 404);
   }
 
@@ -55,7 +55,13 @@ try {
   // clawl
   $result = request('GET', $param_url, $request_header);
 
-  // if getting no HTML, raise error
+  // if status code greater than 400
+  if ($result['status_code'] >= 400) {
+    throw new DenyException('Response status code greater than 400.',
+      sprintf('HTTP Error Code %d happened at connected server.', $result['status_code']), 500);
+  }
+
+  // if getting no HTML
   if (!preg_match('/\/html/', $result['headers']['content-type'])) {
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
   }
@@ -63,26 +69,28 @@ try {
   // DOM!
   $ROOT_DOM = DOMDocument::loadHTML($result['body']);
   $HTML_DOM = $ROOT_DOM->getElementsByTagName('html')->item(0);
-  if (!$HTML_DOM) throw new DenyException("Can't parse HTML.". "Server can't parse HTML from url.", 500);
+  if (!$HTML_DOM) throw new DenyException("Can't parse HTML.", "Server can't parse HTML from url.", 500);
   $HEAD_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
-  if (!$HEAD_DOM) throw new DenyException("Missing head tag in HTML.". "Server can't find head tag in HTML from url.", 500);
+  if (!$HEAD_DOM) throw new DenyException("Missing head tag in HTML.",
+    "Server can't find head tag in HTML from url.", 500);
   $title_element = $HEAD_DOM->getElementsByTagName('title')->item(0);
-  if (!$title_element) throw new DenyException("Missing title tag in HTML.", "Server can't find title tag in HTML from url.", 500);
+  if (!$title_element) throw new DenyException("Missing title tag in HTML.",
+    "Server can't find title tag in HTML from url.", 500);
 
   // extract informations from DOM
   $meta_elements = $HEAD_DOM->getElementsByTagName('meta');
   $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
   $metadata = isset($meta_elements) ? metadata_extractor($meta) : [];
   $link_elements = $HEAD_DOM->getElementsByTagName('link');
-  $canonical = isset($link_elements) ? canonical_extractor($link_elements) : [];
+  $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
 
   /**
    * assemble response dict
-   * includes title & url & type at least.
+   * includes title & canonical & type & favicon at least.
    */
   $response = [
     'title' => $ogp['title'] ?? $title_element->textContent,
-    'url' => $ogp['url'] ?? $canonical ?? $param_url,
+    'canonical' => $ogp['url'] ?? $rel['canonical'] ?? $result['url'],
     // default value comes from OGP definition
     'type' => $ogp['type'] ?? 'website'
   ];

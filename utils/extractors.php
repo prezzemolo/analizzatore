@@ -41,14 +41,16 @@ function metadata_extractor ($meta_DOMNodeList) {
   return $metadata;
 }
 
-function canonical_extractor ($link_DOMNodeList) {
+function rel_extractor ($link_DOMNodeList) {
   foreach ($link_DOMNodeList as $link_DOMNode) {
    // check existance of attributes
    // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
    if ($link_DOMNode->attributes === null) continue;
    // skip no rel & href in attributes
    if (!$link_DOMNode->hasAttribute('rel')
-    || !$link_DOMNode->hasAttribute('href')) continue;
+    || !$link_DOMNode->getAttribute('rel')
+    || !$link_DOMNode->hasAttribute('href')
+    || !$link_DOMNode->getAttribute('href')) continue;
    // skip no canonical tag
    if ($link_DOMNode->getAttribute('rel') !== 'canonical') continue;
    return $link_DOMNode->getAttribute('href');
