@@ -2,7 +2,7 @@
 
 namespace analizzatore\utils;
 
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'constants.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'constants.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
 
