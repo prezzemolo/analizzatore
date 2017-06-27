@@ -4,7 +4,6 @@ namespace analizzatore;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'utils' . DIRECTORY_SEPARATOR . 'request.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'utils' . DIRECTORY_SEPARATOR . 'extractors.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'utils' . DIRECTORY_SEPARATOR . 'headers.php';
 
 use DOMDocument;
 use analizzatore\utils\Headers;
@@ -25,6 +24,5 @@ if (isset($res_body_DOM_head)) {
 }
 $res_info = $res['info'];
 var_dump($res_headers['Content-encoding']);
-var_dump((new Headers($res_info['request_header']))['user-AGent']);
 var_dump($res_info['http_code']);
 ?>

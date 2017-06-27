@@ -3,6 +3,7 @@
 namespace analizzatore\utils;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bool-wrappers.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'headers.php';
 
 /**
  * request_merge_headers
