@@ -80,7 +80,7 @@ try {
   // extract informations from DOM
   $meta_elements = $HEAD_DOM->getElementsByTagName('meta');
   $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
-  $metadata = isset($meta_elements) ? metadata_extractor($meta) : [];
+  $metadata = isset($meta_elements) ? metadata_extractor($metadata) : [];
   $link_elements = $HEAD_DOM->getElementsByTagName('link');
   $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
 
@@ -111,6 +111,7 @@ try {
     $response['site_name'] = $ogp['site_name'];
   }
 
+  header('Content-Type: application/json');
   echo json_encode($response);
 
 // error catch blocks use RFC7807.
