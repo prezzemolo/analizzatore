@@ -67,7 +67,7 @@ try {
   }
 
   // DOM!
-  $ROOT_DOM = DOMDocument::loadHTML($result['body']);
+  $ROOT_DOM = DOMDocument::loadHTML(mb_convert_encoding($result['body'], 'HTML-ENTITIES'));
   $HTML_DOM = $ROOT_DOM->getElementsByTagName('html')->item(0);
   if (!$HTML_DOM) throw new DenyException("Can't parse HTML.", "Server can't parse HTML from url.", 500);
   $HEAD_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
