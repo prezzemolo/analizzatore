@@ -97,7 +97,7 @@ function request (string $method, string $url, array $headers = [], string $body
     'body' => $decoded_body ?? $body,
     'headers' => $headers,
     'info' => $informations,
-    'status_code' => $status_code,
+    'status_code' => $informations['http_code'],
     'url' => $informations['url']
   ];
 }
