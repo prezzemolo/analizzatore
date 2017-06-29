@@ -4,6 +4,7 @@ namespace analizzatore\utils;
 
 function ogp_extractor ($meta_DOMNodeList) {
   $ogp_tags = [];
+
   foreach ($meta_DOMNodeList as $meta_DOMNode) {
    // check existance of attributes
    // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
@@ -18,6 +19,7 @@ function ogp_extractor ($meta_DOMNodeList) {
    $content = $meta_DOMNode->getAttribute('content');
    $ogp_tags[$property] = $content;
  }
+
  return $ogp_tags;
 }
 
@@ -38,10 +40,13 @@ function metadata_extractor ($meta_DOMNodeList) {
    $content = $meta_DOMNode->getAttribute('content');
    $metadata[$name] = $content;
   }
+
   return $metadata;
 }
 
 function rel_extractor ($link_DOMNodeList) {
+  $rel_tags = [];
+
   foreach ($link_DOMNodeList as $link_DOMNode) {
    // check existance of attributes
    // http://php.net/manual/en/class.domnode.php#domnode.props.attributes
@@ -51,10 +56,11 @@ function rel_extractor ($link_DOMNodeList) {
     || !$link_DOMNode->getAttribute('rel')
     || !$link_DOMNode->hasAttribute('href')
     || !$link_DOMNode->getAttribute('href')) continue;
-   // skip no canonical tag
-   if ($link_DOMNode->getAttribute('rel') !== 'canonical') continue;
-   return $link_DOMNode->getAttribute('href');
+   $rel = $link_DOMNode->getAttribute('rel');
+   $href = $link_DOMNode->getAttribute('href');
+   $rel_tags[$rel] = $href;
  }
- return null;
+
+ return $rel_tags;
 }
 ?>
