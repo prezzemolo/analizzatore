@@ -5,6 +5,7 @@ namespace analizzatore;
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'processors', 'index.php']);
 
 use DOMDocument;
 use Exception;
@@ -48,9 +49,9 @@ try {
   // set nesessary values
   $param_url = $_GET['url'];
   $param_lang = $_GET['lang'];
-  $request_header = $param_lang ? [
-    'Accept-Language' => $param_lang
-  ] : [];
+  $request_header = [
+    'Accept-Language' => $param_lang ?? 'en'
+  ];
 
   // clawl
   $result = request('GET', $param_url, $request_header);
