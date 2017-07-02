@@ -5,7 +5,6 @@ namespace analizzatore;
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'processors', 'index.php']);
 
 use DOMDocument;
 use Exception;
