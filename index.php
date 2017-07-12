@@ -117,7 +117,19 @@ try {
     $response['site_name'] = $ogp['site_name'];
   }
 
-  // send
+  # set headers
+  /**
+   * Q. why gmdate & GMT used?
+   * A. for following IMF-fixdate.
+   * 'An HTTP-date value represents time as an instance of Coordinated
+   *  Universal Time (UTC).  The first two formats indicate UTC by the
+   *  three-letter abbreviation for Greenwich Mean Time, "GMT", a
+   *  predecessor of the UTC name; values in the asctime format are assumed
+   *  to be in UTC.  A sender that generates HTTP-date values from a local
+   *  clock ought to use NTP ([RFC5905]) or some similar protocol to
+   *  synchronize its clock to UTC.'
+   * by RFC7231 (https://tools.ietf.org/html/rfc7231#section-7.1.1.1)
+   **/
   header(sprintf('Last-Modified: %s',
     gmdate('D, d M Y H:i:s \G\M\T', $result['timestamp'])
   ));
@@ -125,6 +137,8 @@ try {
     gmdate('D, d M Y H:i:s \G\M\T', $result['timestamp'] + (1 * 60 * 60))
   ));
   header('Content-Type: application/json');
+
+  # send JSONize response
   echo json_encode($response);
 
 // error catch blocks use RFC7807.
