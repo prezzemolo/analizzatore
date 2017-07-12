@@ -130,11 +130,11 @@ try {
    *  synchronize its clock to UTC.'
    * by RFC7231 (https://tools.ietf.org/html/rfc7231#section-7.1.1.1)
    **/
-  header(sprintf('Last-Modified: %s',
-    gmdate('D, d M Y H:i:s \G\M\T', $result['timestamp'])
+  header(sprintf('Last-Modified: %s GMT',
+    gmdate('D, d M Y H:i:s', $result['timestamp'])
   ));
-  header(sprintf('Expires: %s',
-    gmdate('D, d M Y H:i:s \G\M\T', $result['timestamp'] + (1 * 60 * 60))
+  header(sprintf('Expires: %s GMT',
+    gmdate('D, d M Y H:i:s', $result['timestamp'] + (1 * 60 * 60))
   ));
   header('Content-Type: application/json');
 
