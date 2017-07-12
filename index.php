@@ -133,7 +133,7 @@ try {
   header(sprintf('Last-Modified: %s GMT',
     gmdate('D, d M Y H:i:s', $result['timestamp'])
   ));
-  header(sprintf('Cache-control: public, only-if-cached, max-age: %d', 1 * 60 * 60));
+  header(sprintf('Cache-control: public, only-if-cached, max-age=%d', 1 * 60 * 60));
   header('Content-Type: application/json');
 
   # send JSONize response
