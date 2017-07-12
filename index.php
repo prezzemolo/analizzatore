@@ -60,10 +60,18 @@ try {
 
   // clawl
   $result = request('GET', $param_url, $request_header);
-  $requesttime_datetime = new Datetime(result['timestamp']);
-  $requesttime_rfc1123 = $request_datetime->format(DateTime::RFC1123);
+  $requesttime_datetime = new Datetime(
+    sprintf("@%d",
+      $result['timestamp']
+    )
+  );
+  $requesttime_rfc1123 = $requesttime_datetime->format(DateTime::RFC1123);
   // the result expires at one hour elapsed
-  $expiretime_datetime = new Datetime(result['timestamp'] + (1 * 60 * 60));
+  $expiretime_datetime = new Datetime(
+    sprintf("@%d",
+      $result['timestamp'] + (1 * 60 * 60)
+    )
+  );
   $expiretime_rfc1123 = $expiretime_datetime->format(DateTime::RFC1123);
 
   // stop with status code greater than 400
