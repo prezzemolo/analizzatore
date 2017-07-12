@@ -117,7 +117,7 @@ try {
     $response['site_name'] = $ogp['site_name'];
   }
 
-  # set headers
+  // set headers
   /**
    * Q. why gmdate & GMT used?
    * A. for following IMF-fixdate.
@@ -133,10 +133,11 @@ try {
   header(sprintf('Last-Modified: %s GMT',
     gmdate('D, d M Y H:i:s', $result['timestamp'])
   ));
-  header(sprintf('Cache-control: public, max-age=%d', 1 * 60 * 60));
+  # one day cache
+  header(sprintf('Cache-control: public, max-age=%d', 24 * 60 * 60));
   header('Content-Type: application/json');
 
-  # send JSONize response
+  // send JSONize response
   echo json_encode($response);
 
 // error catch blocks use RFC7807.
