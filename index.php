@@ -12,6 +12,9 @@ use DateTime;
 use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
+// start buffering
+ob_start();
+
 try {
   /**
    * remove X-Powered-By header
@@ -165,5 +168,13 @@ try {
     'line' => $e->getLine()
   ]);
 }
+
+# set Content-Length & real send
+header(
+  sprintf('Content-Length: %d', 
+    ob_get_length()
+  )
+);
+ob_end_flush();
 
 ?>
