@@ -130,9 +130,6 @@ try {
    *  synchronize its clock to UTC.'
    * by RFC7231 (https://tools.ietf.org/html/rfc7231#section-7.1.1.1)
    **/
-  header(sprintf('Last-Modified: %s GMT',
-    gmdate('D, d M Y H:i:s', $result['timestamp'])
-  ));
   # one day cache
   header(sprintf('Cache-control: public, max-age=%d', 24 * 60 * 60));
   header(sprintf('Expires: %s GMT',
