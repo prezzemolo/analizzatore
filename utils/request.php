@@ -73,6 +73,7 @@ function request (string $method, string $url, array $headers = [], string $body
   ]);
 
   // set response & informations
+  $timestamp = time();
   $response = curl_exec($curl_ch);
   $informations = curl_getinfo($curl_ch);
 
@@ -98,7 +99,8 @@ function request (string $method, string $url, array $headers = [], string $body
     'headers' => $headers,
     'info' => $informations,
     'status_code' => $informations['http_code'],
-    'url' => $informations['url']
+    'url' => $informations['url'],
+    'timestamp' => $timestamp
   ];
 }
 ?>
