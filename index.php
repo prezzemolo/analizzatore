@@ -135,6 +135,9 @@ try {
   ));
   # one day cache
   header(sprintf('Cache-control: public, max-age=%d', 24 * 60 * 60));
+  header(sprintf('Expires: %s GMT',
+    gmdate('D, d M Y H:i:s', $result['timestamp'] + 24 * 60 * 60)
+  ));
   header('Content-Type: application/json');
 
   // send JSONize response
