@@ -8,6 +8,7 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
 
 use DOMDocument;
 use Exception;
+use DateTime;
 use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
@@ -54,14 +55,16 @@ try {
 
   // clawl
   $result = request('GET', $param_url, $request_header);
+  $timestamp_datetime = new Datetime(result['timestamp']);
+  $timestamp_rfc1123 = $timestamp_datetime->format(DateTime::RFC1123);
 
-  // if status code greater than 400
+  // stop with status code greater than 400
   if ($result['status_code'] >= 400) {
     throw new DenyException('Response status code greater than 400.',
       sprintf('HTTP Error Code %d happened at connected server.', $result['status_code']), 500);
   }
 
-  // if getting no HTML
+  // stop with getting no HTML
   if (!preg_match('/\/html/', $result['headers']['content-type'])) {
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
   }
@@ -111,6 +114,8 @@ try {
     $response['site_name'] = $ogp['site_name'];
   }
 
+  # send
+  header(sprintf('Date: %s', $timestamp_rfc1123));
   header('Content-Type: application/json');
   echo json_encode($response);
 
