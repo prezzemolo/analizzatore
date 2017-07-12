@@ -124,7 +124,7 @@ try {
 
   # send
   header(sprintf('Date: %s', $requesttime_rfc1123));
-  header(sprintf('Expires: %s', $expiretime_datetime));
+  header(sprintf('Expires: %s', $expiretime_rfc1123));
   header('Content-Type: application/json');
   echo json_encode($response);
 
