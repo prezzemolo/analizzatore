@@ -14,6 +14,11 @@ use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel
 
 try {
   /**
+   * remove X-Powered-By header
+   */
+   header_remove('X-Powered-By');
+
+  /**
    * accept CORS
    * if OPTIONS access, close conn with 204.
    */
