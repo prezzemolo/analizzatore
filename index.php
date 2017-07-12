@@ -60,8 +60,11 @@ try {
 
   // clawl
   $result = request('GET', $param_url, $request_header);
-  $timestamp_datetime = new Datetime(result['timestamp']);
-  $timestamp_rfc1123 = $timestamp_datetime->format(DateTime::RFC1123);
+  $requesttime_datetime = new Datetime(result['timestamp']);
+  $requesttime_rfc1123 = $request_datetime->format(DateTime::RFC1123);
+  // the result expires at one hour elapsed
+  $expiretime_datetime = new Datetime(result['timestamp'] + (1 * 60 * 60));
+  $expiretime_rfc1123 = $expiretime_datetime->format(DateTime::RFC1123);
 
   // stop with status code greater than 400
   if ($result['status_code'] >= 400) {
@@ -120,7 +123,8 @@ try {
   }
 
   # send
-  header(sprintf('Date: %s', $timestamp_rfc1123));
+  header(sprintf('Date: %s', $requesttime_rfc1123));
+  header(sprintf('Expires: %s', $expiretime_datetime));
   header('Content-Type: application/json');
   echo json_encode($response);
 
