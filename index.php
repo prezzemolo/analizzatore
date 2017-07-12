@@ -80,7 +80,7 @@ try {
   // extract informations from DOM
   $meta_elements = $HEAD_DOM->getElementsByTagName('meta');
   $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
-  $metadata = isset($meta_elements) ? metadata_extractor($metadata) : [];
+  $metadata = isset($meta_elements) ? metadata_extractor($meta_elements) : [];
   $link_elements = $HEAD_DOM->getElementsByTagName('link');
   $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
 
