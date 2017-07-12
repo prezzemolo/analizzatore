@@ -139,6 +139,7 @@ try {
     gmdate('D, d M Y H:i:s', $result['timestamp'] + 24 * 60 * 60)
   ));
   header('Content-Type: application/json');
+  header('Vary: Accept-Encoding');
 
   // send JSONize response
   echo json_encode($response);
