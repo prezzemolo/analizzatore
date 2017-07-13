@@ -17,7 +17,7 @@ class Headers implements ArrayAccess {
     return mb_strtolower($raw_header_field_name);
   }
 
-  function __construct ($raw_header, $allheaders) {
+  function __construct ($raw_header, $allheaders = null) {
     // support request headers array by getallheaders func
     if ($allheaders) {
       foreach ($allheaders as $header_field_name => $header_field_value) {
