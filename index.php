@@ -54,6 +54,17 @@ try {
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter must start with 'http://' or 'https://'.", 400);
   }
 
+  // return 304 with if-modified-since header sent, and its value newer than one day ago
+  $headers = getallheaders();
+  if (isset($headers['if-modified-since'])) {
+    $modified = new DateTime($headers['if-modified-since']);
+    $modified_timestamp = $modified->getTimeStamp();
+    if ($modified_timestamp + 24 * 60 * 60 < time()) {
+      http_response_code(304);
+      die();
+    }
+  }
+
   // set nesessary values
   $param_url = $_GET['url'];
   $param_lang = $_GET['lang'];
