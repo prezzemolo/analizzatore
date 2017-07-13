@@ -5,10 +5,12 @@ namespace analizzatore;
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
 
 use DOMDocument;
 use Exception;
 use DateTime;
+use analizzatore\utils\Headers;
 use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
@@ -55,7 +57,7 @@ try {
   }
 
   // return 304 with if-modified-since header sent, and its value newer than one day ago
-  $headers = getallheaders();
+  $headers = new Headers(null, getallheaders());
   if (isset($headers['if-modified-since'])) {
     $modified = new DateTime($headers['if-modified-since']);
     $modified_timestamp = $modified->getTimeStamp();
