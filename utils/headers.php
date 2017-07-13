@@ -17,7 +17,16 @@ class Headers implements ArrayAccess {
     return mb_strtolower($raw_header_field_name);
   }
 
-  function __construct ($raw_header) {
+  function __construct ($raw_header, $allheaders) {
+    // support request headers array by getallheaders func
+    if ($allheaders) {
+      foreach ($allheaders as $header_field_name => $header_field_value) {
+        $header_field_name = $this->preen_header_field_name($header_field_name);
+        $this->headers[$header_field_name] = $header_field_value;
+      }
+      return;
+    }
+
     foreach (preg_split('/\r?\n|\r/', $raw_header) as $header) {
       $header_pair = preg_split('/: /', $header);
       if (count($header_pair) !== 2) {
