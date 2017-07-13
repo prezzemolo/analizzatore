@@ -61,7 +61,7 @@ try {
   if (isset($headers['if-modified-since'])) {
     $modified = new DateTime($headers['if-modified-since']);
     $modified_timestamp = $modified->getTimeStamp();
-    if ($modified_timestamp + 24 * 60 * 60 < time()) {
+    if ($modified_timestamp + 24 * 60 * 60 > time()) {
       http_response_code(304);
       die();
     }
