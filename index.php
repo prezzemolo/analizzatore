@@ -58,7 +58,7 @@ try {
 
   $headers = new Headers(null, getallheaders());
   // no loop, no clawl my own self
-  if ($headers['host'] === parse_url($_SERVER['REQUEST_URI'], PHP_URL_HOST)) {
+  if ($headers['host'] === parse_url($_GET['url'], PHP_URL_HOST)) {
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter contains hostname that is same as server hostname.", 400);
   }
   // return 304 with if-modified-since header sent, and its value newer than one day ago
