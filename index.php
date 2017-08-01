@@ -56,8 +56,12 @@ try {
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter must start with 'http://' or 'https://'.", 400);
   }
 
-  // return 304 with if-modified-since header sent, and its value newer than one day ago
   $headers = new Headers(null, getallheaders());
+  // no loop, no clawl my own self
+  if ($headers['host'] === parse_url($_SERVER['REQUEST_URI'], PHP_URL_HOST)) {
+    throw new DenyException("Incorrect 'url' parameter.", "'url' parameter contains hostname that is same as server hostname.", 400);
+  }
+  // return 304 with if-modified-since header sent, and its value newer than one day ago
   if (isset($headers['if-modified-since'])) {
     $modified = new DateTime($headers['if-modified-since']);
     $modified_timestamp = $modified->getTimeStamp();
