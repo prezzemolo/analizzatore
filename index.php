@@ -193,5 +193,3 @@ header(
   )
 );
 ob_end_flush();
-
-?>

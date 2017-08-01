@@ -26,4 +26,3 @@ if (isset($res_body_DOM_head)) {
 $res_info = $res['info'];
 var_dump($res_headers['Content-encoding']);
 var_dump($res_info['http_code']);
-?>

@@ -63,4 +63,3 @@ function rel_extractor ($link_DOMNodeList) {
 
  return $rel_tags;
 }
-?>

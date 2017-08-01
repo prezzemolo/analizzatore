@@ -103,4 +103,3 @@ function request (string $method, string $url, array $headers = [], string $body
     'timestamp' => $timestamp
   ];
 }
-?>
