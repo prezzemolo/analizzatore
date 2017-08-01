@@ -50,7 +50,7 @@ class ExUrl {
 
     if (array_key_exists('scheme', $addition_components) || array_key_exists('host', $addition_components)) {
       var_dump('scheme or host!');
-      return self::assemble_url(
+      return self::assemble(
         array_merge([
           'scheme' => $base_components['scheme']
         ], $addition_components)
@@ -83,7 +83,7 @@ class ExUrl {
         # for relative path: '/abc/cde' + 'fgh' = '/abc/fgh'
         : implode('/', array_push(explode($base_path, '/', -1), $addition_path));
     }
-    return self::assemble_url(
+    return self::assemble(
       array_merge($merge_base, $addition_components, [
         'path' => $path
       ])
