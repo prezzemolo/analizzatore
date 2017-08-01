@@ -5,7 +5,7 @@ namespace analizzatore\utils;
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'ex-string.php']);
 
 class ExUrl {
-  public static function assemble_url ($parsed_url) {
+  public static function assemble ($parsed_url) {
     // if false, return value when url_parse failed
     if ($parsed_url === false) return null;
 
@@ -38,7 +38,7 @@ class ExUrl {
     return $rv . $rvc;
   }
 
-  public static function join_url ($base, $addition) {
+  public static function join ($base, $addition) {
     // arguments can't be null
     if ($base === null || $addition === null) return null;
 
@@ -80,7 +80,8 @@ class ExUrl {
       $path =
         ExString::endsWith($base_path, '/')
         ? $base_path . $addition_path
-        : $base_path . '/' . $addition_path;
+        # for relative path: '/abc/cde' + 'fgh' = '/abc/fgh'
+        : implode('/', array_push(explode($base_path, '/', -1), $addition_path));
     }
     return self::assemble_url(
       array_merge($merge_base, $addition_components, [
