@@ -7,12 +7,14 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'headers.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-url.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-string.php']);
 
 use DOMDocument;
 use Exception;
 use DateTime;
 use analizzatore\utils\Headers;
 use analizzatore\utils\ExUrl;
+use analizzatore\utils\ExString;
 use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
@@ -94,22 +96,42 @@ try {
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
   }
 
-  // DOM!
-  $ROOT_DOM = DOMDocument::loadHTML(mb_convert_encoding($result['body'], 'HTML-ENTITIES'));
-  $HTML_DOM = $ROOT_DOM->getElementsByTagName('html')->item(0);
+  // assemble DOM tree
+  # detect the content's charset
+  $matches = [];
+  # from http-equiv
+  preg_match('[<meta http-equiv="(?:content-type|Content-Type)" content="(.*)"]', $result['body'], $matches);
+  if (isset($matches[1])) {
+    $content = $matches[1];
+    preg_match('/charset=([^ ;]*)(?: ?;)?/', $matches[1], $matches);
+    if (isset($matches[1])) $charset = $matches[1];
+  }
+  # from charset (override http-equiv)
+  $matches = [];
+  preg_match('[<meta charset="(.*)"]', $result['body'], $matches);
+  if (isset($matches[1])) $charset = $matches[1];
+  # check loadable in the running environment
+  $encoding = ExString::check_encoding_loadable($charset)
+    ? $charset
+    : 'UTF-8';
+  $root_DOM = DOMDocument::loadHTML(
+    # convert to HTML-ENTITIES, see https://www.w3schools.com/html/html_entities.asp
+    mb_convert_encoding($result['body'], 'HTML-ENTITIES', $encoding)
+  );
+  $HTML_DOM = $root_DOM->getElementsByTagName('html')->item(0);
   if (!$HTML_DOM) throw new DenyException("Can't parse HTML.", "Server can't parse HTML from url.", 500);
-  $HEAD_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
-  if (!$HEAD_DOM) throw new DenyException("Missing head tag in HTML.",
+  $head_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
+  if (!$head_DOM) throw new DenyException("Missing head tag in HTML.",
     "Server can't find head tag in HTML from url.", 500);
-  $title_element = $HEAD_DOM->getElementsByTagName('title')->item(0);
+  $title_element = $head_DOM->getElementsByTagName('title')->item(0);
   if (!$title_element) throw new DenyException("Missing title tag in HTML.",
     "Server can't find title tag in HTML from url.", 500);
 
   // extract informations from DOM
-  $meta_elements = $HEAD_DOM->getElementsByTagName('meta');
+  $meta_elements = $head_DOM->getElementsByTagName('meta');
   $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
   $metadata = isset($meta_elements) ? metadata_extractor($meta_elements) : [];
-  $link_elements = $HEAD_DOM->getElementsByTagName('link');
+  $link_elements = $head_DOM->getElementsByTagName('link');
   $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
 
   /**
