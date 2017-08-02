@@ -49,7 +49,6 @@ class ExUrl {
     if (!$base_components || !$addition_components) return null;
 
     if (array_key_exists('scheme', $addition_components) || array_key_exists('host', $addition_components)) {
-      var_dump('scheme or host!');
       return self::assemble(
         array_merge([
           'scheme' => $base_components['scheme']
@@ -68,12 +67,10 @@ class ExUrl {
       array_key_exists('path', $base_components)
       ? $base_components['path']
       : '/';
-    var_dump($base_path);
     $addition_path =
       array_key_exists('path', $addition_components)
       ? $addition_components['path']
       : '';
-    var_dump($addition_path);
     if (ExString::startsWith($addition_path, '/')) {
       $path = $addition_path;
     } else {
@@ -83,7 +80,6 @@ class ExUrl {
         # for relative path: '/abc/cde' + 'fgh' = '/abc/fgh'
         $path_components = explode('/', $base_path, -1);
         array_push($path_components, $addition_path);
-        var_dump($path_components);
         $path = implode('/', $path_components);
       }
     }
