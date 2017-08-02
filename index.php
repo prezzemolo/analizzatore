@@ -139,8 +139,8 @@ try {
     $response['site_name'] = $ogp['site_name'];
   }
   # icon
-  if (isset($rel['shotcut icon']) || isset($rel['icon'])) {
-    $response['icon'] = ExUrl::join($response['canonical'], $rel['shotcut icon'] ?? $rel['icon']);
+  if (isset($rel['icon']) || isset($rel['shotcut icon'])) {
+    $response['icon'] = ExUrl::join($response['canonical'], $rel['icon'] ?? $rel['shotcut icon']);
   }
 
   // set headers
