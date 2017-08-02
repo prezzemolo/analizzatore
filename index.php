@@ -110,6 +110,10 @@ try {
   $matches = [];
   preg_match('[<meta charset="(.*)"]', $result['body'], $matches);
   if (isset($matches[1])) $charset = $matches[1];
+  # userlang aliases detection
+  $charset = [
+    'Shift_JIS' => 'SJIS'
+  ][$charset] ?? $charset;
   # check loadable in the running environment
   $encoding = ExString::check_encoding_loadable($charset)
     ? $charset
