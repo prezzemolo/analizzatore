@@ -6,11 +6,13 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'extractors.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'headers.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-url.php']);
 
 use DOMDocument;
 use Exception;
 use DateTime;
 use analizzatore\utils\Headers;
+use analizzatore\utils\ExUrl;
 use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
@@ -126,7 +128,7 @@ try {
   }
   # image
   if (isset($ogp['image'])) {
-    $response['image'] = $ogp['image'];
+    $response['image'] = ExUrl::join($response['canonical'], $ogp['image']);
   }
   # description
   if (isset($ogp['description']) || isset($metadata['description'])) {
@@ -135,6 +137,10 @@ try {
   # site name
   if (isset($ogp['site_name'])) {
     $response['site_name'] = $ogp['site_name'];
+  }
+  # icon
+  if (isset($rel['shotcut icon']) || isset($rel['icon'])) {
+    $response['icon'] = ExUrl::join($response['canonical'], $rel['shotcut icon'] ?? $rel['icon']);
   }
 
   // set headers
