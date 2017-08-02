@@ -81,8 +81,10 @@ class ExUrl {
         $path = $base_path . $addition_path;
       } else {
         # for relative path: '/abc/cde' + 'fgh' = '/abc/fgh'
-        $path_components = array_push(explode($base_path, '/', -1), $addition_path);
-        implode('/', $path_components);
+        $path_components = explode('/', $base_path, -1);
+        array_push($path_components, $addition_path);
+        var_dump($path_components);
+        $path = implode('/', $path_components);
       }
     }
     return self::assemble(
