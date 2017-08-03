@@ -100,7 +100,7 @@ try {
   # detect the content's charset
   $matches = [];
   # from http-equiv
-  preg_match('[<meta http-equiv="(?:content-type|Content-Type)" content="(.*)"]', $result['body'], $matches);
+  preg_match('[<meta http-equiv="content-type" content="(.*)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
     $content = $matches[1];
     preg_match('/charset=([^ ;]*)(?: ?;)?/', $matches[1], $matches);
@@ -115,7 +115,7 @@ try {
     'Shift_JIS' => 'SJIS'
   ][$charset] ?? $charset;
   # check loadable in the running environment
-  $encoding = ExString::check_encoding_loadable($charset)
+  $encoding = isset($charset) and ExString::check_encoding_loadable($charset)
     ? $charset
     : 'UTF-8';
   $root_DOM = DOMDocument::loadHTML(
