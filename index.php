@@ -115,9 +115,7 @@ try {
     'Shift_JIS' => 'SJIS'
   ][$charset] ?? $charset;
   # check loadable in the running environment
-  $encoding = isset($charset) and ExString::check_encoding_loadable($charset)
-    ? $charset
-    : 'UTF-8';
+  $encoding = isset($charset) && ExString::check_encoding_loadable($charset) ? $charset : 'UTF-8';
   $root_DOM = DOMDocument::loadHTML(
     # convert to HTML-ENTITIES, see https://www.w3schools.com/html/html_entities.asp
     mb_convert_encoding($result['body'], 'HTML-ENTITIES', $encoding)
