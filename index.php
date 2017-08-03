@@ -75,15 +75,10 @@ try {
     }
   }
 
-  // set nesessary values
-  $param_url = $_GET['url'];
-  $param_lang = $_GET['lang'];
-  $request_header = [
-    'Accept-Language' => $param_lang ?? 'en'
-  ];
-
   // clawl
-  $result = request('GET', $param_url, $request_header);
+  $result = request('GET', $_GET['url'], [
+    'Accept-Language' => $_GET['lang'] ?? 'en'
+  ]);
 
   // stop with status code greater than 400
   if ($result['status_code'] >= 400) {
@@ -121,20 +116,20 @@ try {
     mb_convert_encoding($result['body'], 'HTML-ENTITIES', $encoding)
   );
   $HTML_DOM = $root_DOM->getElementsByTagName('html')->item(0);
-  if (!$HTML_DOM) throw new DenyException("Can't parse HTML.", "Server can't parse HTML from url.", 500);
+  if (!$HTML_DOM) throw new DenyException("Can't parse the response.", "Server can't parse the response from url.", 500);
   $head_DOM = $HTML_DOM->getElementsByTagName('head')->item(0);
-  if (!$head_DOM) throw new DenyException("Missing head tag in HTML.",
-    "Server can't find head tag in HTML from url.", 500);
-  $title_element = $head_DOM->getElementsByTagName('title')->item(0);
-  if (!$title_element) throw new DenyException("Missing title tag in HTML.",
-    "Server can't find title tag in HTML from url.", 500);
+  if (!$head_DOM) throw new DenyException("Missing head tag in the response.",
+    "Server can't find head tag in the response from url.", 500);
 
   // extract informations from DOM
+  $title_element = $head_DOM->getElementsByTagName('title')->item(0);
   $meta_elements = $head_DOM->getElementsByTagName('meta');
   $ogp = isset($meta_elements) ? ogp_extractor($meta_elements) : [];
   $metadata = isset($meta_elements) ? metadata_extractor($meta_elements) : [];
   $link_elements = $head_DOM->getElementsByTagName('link');
   $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
+  if (!isset($ogp['title']) && !$title_element) throw new DenyException("Missing title in the response.",
+    "Server can't find title in the response from url.", 500);
 
   /**
    * assemble response dict
