@@ -100,15 +100,15 @@ try {
   # detect the content's charset
   $matches = [];
   # from http-equiv
-  preg_match('[<meta http-equiv="content-type" content="(.*)"]i', $result['body'], $matches);
+  preg_match('[<meta http-equiv="content-type" content="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
     $content = $matches[1];
-    preg_match('/charset=([^ ;]*)(?: ?;)?/', $matches[1], $matches);
+    preg_match('/charset=([^ ;]*)/', $matches[1], $matches);
     if (isset($matches[1])) $charset = $matches[1];
   }
   # from charset (override http-equiv)
   $matches = [];
-  preg_match('[<meta charset="(.*)"]', $result['body'], $matches);
+  preg_match('[<meta charset="(.*?)"]', $result['body'], $matches);
   if (isset($matches[1])) $charset = $matches[1];
   # userlang aliases detection
   $charset = [
