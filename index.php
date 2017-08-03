@@ -107,8 +107,8 @@ try {
   if (isset($matches[1])) $charset = $matches[1];
   # userlang aliases detection
   $charset = [
-    'Shift_JIS' => 'SJIS'
-  ][$charset] ?? $charset;
+    'shift_jis' => 'SJIS'
+  ][strtolower($charset)] ?? $charset;
   # check loadable in the running environment
   $encoding = isset($charset) && ExString::check_encoding_loadable($charset) ? $charset : 'UTF-8';
   $root_DOM = DOMDocument::loadHTML(
