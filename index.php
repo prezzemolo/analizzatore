@@ -91,9 +91,7 @@ try {
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
   }
 
-  // assemble DOM tree
-  # detect the content's charset
-  $matches = [];
+  // detect charset
   # from http-equiv
   preg_match('[<meta http-equiv="content-type" content="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
@@ -102,15 +100,25 @@ try {
     if (isset($matches[1])) $charset = $matches[1];
   }
   # from charset (override http-equiv)
-  $matches = [];
   preg_match('[<meta charset="(.*?)"]', $result['body'], $matches);
   if (isset($matches[1])) $charset = $matches[1];
+  # convert to lowercase for search
+  $charset = strtolower($charset);
+  $encodings = [];
+  foreach (ExString::list_encodings_with_alias() as $encoding) {
+    $encodings[strtolower($encoding)] = $encoding;
+  }
   # userlang aliases detection
   $charset = [
-    'shift_jis' => 'SJIS'
-  ][strtolower($charset)] ?? $charset;
+    'shift_jis' => 'sjis'
+  ][$charset] ?? $charset;
   # check loadable in the running environment
-  $encoding = isset($charset) && ExString::check_encoding_loadable($charset) ? $charset : 'UTF-8';
+  $encoding =
+    isset($charset) && array_key_exists($charset, $encodings)
+    ? $encodings[$charset]
+    : 'UTF-8';
+
+  // assemble DOM tree
   $root_DOM = DOMDocument::loadHTML(
     # convert to HTML-ENTITIES, see https://www.w3schools.com/html/html_entities.asp
     mb_convert_encoding($result['body'], 'HTML-ENTITIES', $encoding)
@@ -161,6 +169,8 @@ try {
   if (isset($rel['icon']) || isset($rel['shortcut icon'])) {
     $response['icon'] = ExUrl::join($response['canonical'], $rel['icon'] ?? $rel['shortcut icon']);
   }
+  $response['charset'] = $charset;
+  $response['encoding'] = $encoding;
 
   // set headers
   /**
