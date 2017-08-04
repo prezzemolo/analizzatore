@@ -169,8 +169,6 @@ try {
   if (isset($rel['icon']) || isset($rel['shortcut icon'])) {
     $response['icon'] = ExUrl::join($response['canonical'], $rel['icon'] ?? $rel['shortcut icon']);
   }
-  $response['charset'] = $charset;
-  $response['encoding'] = $encoding;
 
   // set headers
   /**
