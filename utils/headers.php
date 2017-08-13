@@ -72,10 +72,10 @@ class Headers implements ArrayAccess {
    * user can't write to this ArrayLike Object
    */
    public function offsetSet ($raw_header_field_name, $header_field_value) {
-     throw new HeadersReadOnlyException($this::E_READ_ONLY);
+     throw new HeadersReadOnlyException(self::E_READ_ONLY);
    }
 
    public function offsetUnset ($raw_header_field_name) {
-     throw new HeadersReadOnlyException($this::E_READ_ONLY);
+     throw new HeadersReadOnlyException(self::E_READ_ONLY);
    }
 }
