@@ -50,9 +50,8 @@ function request (string $method, string $url, array $headers = [], string $body
   // set body
   if (isset($body)) {
     // block human error!!!!!
-    if (strcasecmpbool($method, 'GET')) {
+    if (strcasecmpbool($method, 'GET'))
       throw new Exception('You can not set body when uses GET method.');
-    }
     curl_setopt($curl_ch, CURLOPT_POSTFIELDS, $body);
   }
 
@@ -79,9 +78,8 @@ function request (string $method, string $url, array $headers = [], string $body
   $informations = curl_getinfo($curl_ch);
 
   // error handling
-  if (curl_errno($curl_ch) !== 0) {
+  if (curl_errno($curl_ch) !== 0)
     throw new Exception(curl_error($curl_ch));
-  }
 
   curl_close($curl_ch);
 
@@ -91,9 +89,8 @@ function request (string $method, string $url, array $headers = [], string $body
   $body = substr($response, $informations['header_size']);
 
   // decode gzip if body is encorded
-  if ($headers['content-encoding'] === 'gzip') {
+  if ($headers['content-encoding'] === 'gzip')
     $decoded_body = gzdecode($body);
-  }
 
   return [
     'body' => $decoded_body ?? $body,

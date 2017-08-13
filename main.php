@@ -38,31 +38,26 @@ function main () {
   }
 
   // appear GET, HEAD accesses only (in addition, OPTIONS allowed in above section)
-  if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'HEAD') {
+  if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'HEAD')
     throw new DenyException(sprintf("Method '%s' is not allowed.", $_SERVER['REQUEST_METHOD']),
       'you can use GET or HEAD method only.', 405);
-  }
 
   // appear / only
-  if (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) !== '/') {
+  if (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) !== '/')
     throw new DenyException('There are no content.', "Haven't you made a mistake?", 404);
-  }
 
   // notice missing url parameter
-  if (!isset($_GET['url'])) {
+  if (!isset($_GET['url']))
     throw new DenyException("Missing 'url' parameter.", "you must set 'url' parameter.", 400);
-  }
 
   // deny no HTTP/HTTPS url
-  if (!preg_match('/^(http:)|(https:)\/\//', $_GET['url'])) {
+  if (!preg_match('/^(http:)|(https:)\/\//', $_GET['url']))
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter must start with 'http://' or 'https://'.", 400);
-  }
 
   $headers = new Headers(null, getallheaders());
   // no loop, no clawl my own self
-  if ($headers['host'] === parse_url($_GET['url'], PHP_URL_HOST)) {
+  if ($headers['host'] === parse_url($_GET['url'], PHP_URL_HOST))
     throw new DenyException("Incorrect 'url' parameter.", "'url' parameter contains hostname that is same as server hostname.", 400);
-  }
   // return 304 with if-modified-since header sent, and its value newer than one day ago
   if (isset($headers['if-modified-since'])) {
     $modified = new DateTime($headers['if-modified-since']);
@@ -80,15 +75,13 @@ function main () {
   ]);
 
   // stop with status code greater than 400
-  if ($result['status_code'] >= 400) {
+  if ($result['status_code'] >= 400)
     throw new DenyException('Response status code greater than 400.',
       sprintf('HTTP Error Code %d happened at connected server.', $result['status_code']), 500);
-  }
 
   // stop with getting no HTML
-  if (!preg_match('/\/html/', $result['headers']['content-type'])) {
+  if (!preg_match('/\/html/', $result['headers']['content-type']))
     throw new DenyException("Content isn't HTML.", "Server can't getting informations for this url.", 500);
-  }
 
   // detect charset
   # from http-equiv
@@ -135,8 +128,8 @@ function main () {
   $metadata = isset($meta_elements) ? metadata_extractor($meta_elements) : [];
   $link_elements = $head_DOM->getElementsByTagName('link');
   $rel = isset($link_elements) ? rel_extractor($link_elements) : [];
-  if (!isset($ogp['title']) && !$title_element) throw new DenyException("Missing title in the response.",
-    "Server can't find title in the response from url.", 500);
+  if (!isset($ogp['title']) && !$title_element)
+    throw new DenyException("Missing title in the response.", "Server can't find title in the response from url.", 500);
 
   /**
    * assemble response dict
@@ -149,25 +142,20 @@ function main () {
     'type' => $ogp['type'] ?? 'website'
   ];
   # lang
-  if ($HTML_DOM->hasAttribute('lang')) {
+  if ($HTML_DOM->hasAttribute('lang'))
     $response['lang'] = $HTML_DOM->getAttribute('lang');
-  }
   # image
-  if (isset($ogp['image'])) {
+  if (isset($ogp['image']))
     $response['image'] = ExUrl::join($response['canonical'], $ogp['image']);
-  }
   # description
-  if (isset($ogp['description']) || isset($metadata['description'])) {
+  if (isset($ogp['description']) || isset($metadata['description']))
     $response['description'] = $ogp['description'] ?? $metadata['description'];
-  }
   # site name
-  if (isset($ogp['site_name'])) {
+  if (isset($ogp['site_name']))
     $response['site_name'] = $ogp['site_name'];
-  }
   # icon
-  if (isset($rel['icon']) || isset($rel['shortcut icon'])) {
+  if (isset($rel['icon']) || isset($rel['shortcut icon']))
     $response['icon'] = ExUrl::join($response['canonical'], $rel['icon'] ?? $rel['shortcut icon']);
-  }
 
   // set headers
   /**

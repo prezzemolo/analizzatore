@@ -29,9 +29,7 @@ class Headers implements ArrayAccess {
 
     foreach (preg_split('/\r?\n|\r/', $raw_header) as $header) {
       $header_pair = preg_split('/: /', $header);
-      if (count($header_pair) !== 2) {
-        continue;
-      }
+      if (count($header_pair) !== 2) continue;
       list($header_field_name, $header_field_value) = $header_pair;
       $header_field_name = $this->preen_header_field_name($header_field_name);
       // check duplicate field name for appending
