@@ -11,7 +11,7 @@ use analizzatore\exceptions\HeadersReadOnlyException;
 
 class Headers implements ArrayAccess {
   private $headers = [];
-  private const E_READ_ONLY = "Headers objects are always read only.";
+  const E_READ_ONLY = "Headers objects are always read only.";
 
   private function preen_header_field_name ($raw_header_field_name) {
     return mb_strtolower($raw_header_field_name);
