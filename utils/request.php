@@ -2,12 +2,10 @@
 
 namespace analizzatore\utils;
 
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'constants.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
 
 use Exception;
-use analizzatore\Constants;
 
 /**
  * request_merge_headers
@@ -56,7 +54,6 @@ function request (string $method, string $url, array $headers = [], string $body
 
   // set headers
   $request_headers = request_merge_headers([
-    'User-Agent' => sprintf('Mozilla/5.0 (compatible; analizzatore/%s; +https://github.com/prezzemolo/analizzatore)', Constants::ANALIZZATORE_VERSION),
     'Accept-Encoding' => 'gzip, identity'
   ], $headers);
   curl_setopt($curl_ch, CURLOPT_HTTPHEADER, request_assemble_curl_headers($request_headers));

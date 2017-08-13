@@ -8,5 +8,5 @@ dependencies
 * libcurl
 * libxml
 
-### additional extension
+### additional extensions
 * mbstring

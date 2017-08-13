@@ -8,6 +8,7 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'exceptions.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'headers.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-url.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-string.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'common', 'constants.php']);
 
 use DOMDocument;
 use DateTime;
@@ -15,6 +16,7 @@ use analizzatore\utils\Headers;
 use analizzatore\utils\ExUrl;
 use analizzatore\utils\ExString;
 use analizzatore\exceptions\DenyException;
+use analizzatore\Constants;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
 function main () {
@@ -73,7 +75,8 @@ function main () {
 
   // clawl
   $result = request('GET', $_GET['url'], [
-    'Accept-Language' => $_GET['lang'] ?? 'en'
+    'Accept-Language' => $_GET['lang'] ?? 'en',
+    'User-Agent' => Constants::ANALIZZATORE_UA
   ]);
 
   // stop with status code greater than 400
