@@ -35,6 +35,10 @@ function request (string $method, string $url, array $headers = [], string $body
   // create cURL session
   $curl_ch = curl_init($url);
 
+  // enable HTTP/2 if supported
+  if (defined('CURL_HTTP_VERSION_2_0'))
+    curl_setopt($curl_ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+
   // set HTTP method
   if (strcasecmpbool($method, 'HEAD')) {
     // OMG! why we can't use CURLOPT_CUSTOMREQUEST for HEAD?
