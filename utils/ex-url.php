@@ -30,7 +30,7 @@ class ExUrl {
 
     if (array_key_exists('path', $parsed_url)) $rvc .= $parsed_url['path'];
     if (array_key_exists('query', $parsed_url)) $rvc .= '?' . $parsed_url['query'];
-    if (array_key_exists('fragment', $parsed_url)) $rvc .= ':' . $parsed_url['fragment'];
+    if (array_key_exists('fragment', $parsed_url)) $rvc .= '#' . $parsed_url['fragment'];
 
     // assemble
     $rv .= $rvs;
