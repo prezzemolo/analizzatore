@@ -3,6 +3,7 @@
 namespace analizzatore\common;
 
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'constants.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'exceptions.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-url.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-string.php']);
@@ -12,6 +13,7 @@ use DOMDocument;
 use analizzatore\Constants;
 use analizzatore\utils\ExUrl;
 use analizzatore\utils\ExString;
+use analizzatore\exceptions\DenyException;
 use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
 function clawl (string $url, string $lang) {
