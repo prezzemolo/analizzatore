@@ -88,6 +88,7 @@ function main () {
   // standalize a URL for caching
   $url_elems = parse_url($_GET['url']);
   if (!array_key_exists('path', $url_elems)) $url_elems['path'] = '/';
+  if (!array_key_exists('fragment', $url_elems)) unset($url_elems['fragment']);
   $url = ExUrl::assemble($url_elems);
 
   $lang = $_GET['lang'] ?? 'en';
