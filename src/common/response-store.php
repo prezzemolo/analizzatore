@@ -27,8 +27,8 @@ class ResponseStore {
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
     return array_merge([
-      // add expiring status
-      'expired' => time() - 24 * 60 * 60 <= $content['state']['timestamp']
+      // check document is 'fresh', newer than 1day ago
+      'fresh' => (time() - 24 * 60 * 60 <= $content['state']['timestamp'])
     ], $content['document']);
   }
 

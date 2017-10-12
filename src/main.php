@@ -107,8 +107,7 @@ function main () {
   $store = new ResponseStore();
   $document = $store->find($url, $lang);
   if ($document !== null) {
-    // check cache newer than 1day ago
-    if (!$document['expired']) {
+    if ($document['fresh']) {
       // check 'if-modified-since', browser side cache header
       if (
         isset($headers['if-modified-since'])
