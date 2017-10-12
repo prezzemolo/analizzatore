@@ -90,6 +90,13 @@ function clawler (string $url, string $lang) {
       "Missing title in the response.",
       "Clawler can't find title in the response from url.");
 
+  // check meta robots
+  $meta_robots = array_map(trim, explode(',', $metadata['robots'] ?? ''));
+  if (in_array('noindex', $meta_robots))
+    throw new DenyException(500,
+      "Indexing denial by meta 'robots' tag.",
+      "Clawler can't continue because meta 'robots' tag includes 'noindex' in the response from uri.");
+
   /**
    * assemble metadata dict
    * includes title & canonical & type & favicon at least.
