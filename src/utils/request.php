@@ -8,14 +8,6 @@ require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
 use Exception;
 
 /**
- * request_merge_headers
- * merge headers for request.
- */
-function request_merge_headers ($arr1, $arr2) {
-  return array_merge(array_change_key_case($arr1), array_change_key_case($arr2));
-}
-
-/**
  * request_assemble_headers
  * assemble an array for cURL CURLOPT_HTTPHEADER from an array key/value request header.
 */
@@ -56,10 +48,7 @@ function request (string $method, string $url, array $headers = [], string $body
   }
 
   // set headers
-  $request_headers = request_merge_headers([
-    'Accept-Encoding' => 'gzip, identity'
-  ], $headers);
-  curl_setopt($curl_ch, CURLOPT_HTTPHEADER, request_assemble_curl_headers($request_headers));
+  curl_setopt($curl_ch, CURLOPT_HTTPHEADER, request_assemble_curl_headers($headers));
 
   // set nesessary options to get header, body & catch timeout error
   curl_setopt_array($curl_ch, [
@@ -69,7 +58,9 @@ function request (string $method, string $url, array $headers = [], string $body
     CURLOPT_TIMEOUT => 5,
     // follow redirection 5 times
     CURLOPT_FOLLOWLOCATION => $follow_redirect,
-    CURLOPT_MAXREDIRS => 5
+    CURLOPT_MAXREDIRS => 5,
+    // accept all encoding supported by cURL
+    CURLOPT_ENCODING => ''
   ]);
 
   // set response & informations
@@ -87,10 +78,6 @@ function request (string $method, string $url, array $headers = [], string $body
   $raw_header = substr($response, 0, $informations['header_size']);
   $headers = new Headers($raw_header);
   $body = substr($response, $informations['header_size']);
-
-  // decode gzip if body is encorded
-  if ($headers['content-encoding'] === 'gzip')
-    $decoded_body = gzdecode($body);
 
   return [
     'body' => $decoded_body ?? $body,
