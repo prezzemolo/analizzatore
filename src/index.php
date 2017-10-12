@@ -13,7 +13,7 @@ ob_start();
 // server returns RFC7807 based error.
 try { main(); } catch (DenyException $e) {
   header('Content-Type: application/problem+json');
-  http_response_code($e->getCode());
+  http_response_code($e->getStatus());
   echo json_encode([
     'type' => 'about:blank',
     'title' => $e->getTitle(),

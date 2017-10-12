@@ -7,13 +7,18 @@ use Exception;
 class DenyException extends Exception {
   private $title;
 
-  public function __construct (string $title, string $message, $code = 500, Exception $previous = null) {
+  public function __construct (int $status, string $title, ...$rest) {
+    $this->status = $status;
     $this->title = $title;
-    parent::__construct($message, $code, $previous);
+    parent::__construct(...$rest);
   }
 
   final public function getTitle () {
     return $this->title;
+  }
+
+  final public function getStatus () {
+    return $this->status;
   }
 }
 

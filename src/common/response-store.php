@@ -1,16 +1,16 @@
 <?php
 
-namespace analizzatore;
+namespace analizzatore\common;
 
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'utils', 'ex-url.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-url.php']);
 
 use analizzatore\utils\ExUrl;
 
-class Store {
+class ResponseStore {
   private $path;
 
-  public function __construct (string $foldername = 'store') {
-    $this->path = join(DIRECTORY_SEPARATOR, [__DIR__, $foldername]);
+  public function __construct (string $foldername = 'cache') {
+    $this->path = join(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', $foldername]);
   }
 
   private function gen_path (string $url, string $lang) {
@@ -23,19 +23,25 @@ class Store {
     if (!file_exists($path)) return null;
     $fp = fopen($path, 'rb');
     if (!$fp) return null;
-    $content = fread($fp, filesize($path));
+    $raw_content = fread($fp, filesize($path));
     fclose($fp);
-    return json_decode($content, TRUE);
+    $content = json_decode($raw_content, TRUE);
+    return array_merge([
+      // add expiring status
+      'expired' => time() - 24 * 60 * 60 <= $content['state']['timestamp']
+    ], $content['document']);
   }
 
-  public function save (string $url, string $lang, array $response, array $metadata): bool {
+  public function save (string $url, string $lang, array $document): bool {
     $path = $this->gen_path($url, $lang);
     // create directory
     if (!file_exists(dirname($path))) mkdir(dirname($path), 0700, TRUE);
     $fp = fopen($path, 'w');
     $json = json_encode([
-      'response' => $response,
-      'metadata' => $metadata
+      'document' => $document,
+      'state' => [
+        'timestamp' => time()
+      ]
     ], JSON_PRETTY_PRINT);
     $byte = fwrite($fp, $json);
     fclose($fp);
