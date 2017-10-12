@@ -49,7 +49,7 @@ function parse_robots_txt (string $body, string $user_agent = null) {
       }
     }
     return [
-      'User-Agent' => $ua_in_ss,
+      'User-Agent' => $uam,
       'Disallow' =>
         count($regexps_disallow_in_ss) === 0 ? null
           : '~(?:' . implode(')|(?:', $regexps_disallow_in_ss) . ')~',
