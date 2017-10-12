@@ -5,7 +5,7 @@ namespace analizzatore\common;
 class ResponseStore {
   private $path;
 
-  public function __construct (string $foldername = 'cache') {
+  public function __construct (string $foldername = 'stores/response') {
     $this->path = join(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', $foldername]);
   }
 

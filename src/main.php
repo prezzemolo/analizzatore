@@ -17,7 +17,6 @@ use function analizzatore\common\clawler;
 
 // commonize header sender, and echo response JSON
 function send (array $document) {
-
   // set headers
   /**
    * Q. why gmdate & GMT used?
@@ -48,15 +47,9 @@ function send (array $document) {
 
 function main () {
   /**
-   * remove X-Powered-By header
+   * a part to accept CORS
+   * with OPTIONS access, close conn with 204.
    */
-   header_remove('X-Powered-By');
-
-  /**
-   * accept CORS
-   * if OPTIONS access, close conn with 204.
-   */
-  header('Access-Control-Allow-Origin: *');
   if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     header(sprintf('Access-Control-Max-Age: %d', 24 * 60 * 60));
