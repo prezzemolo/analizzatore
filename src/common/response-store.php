@@ -2,10 +2,6 @@
 
 namespace analizzatore\common;
 
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-url.php']);
-
-use analizzatore\utils\ExUrl;
-
 class ResponseStore {
   private $path;
 
