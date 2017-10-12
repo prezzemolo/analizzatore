@@ -14,7 +14,7 @@ class DenyExceptionStore {
   }
 
   private function gen_path (string $method, string $request_uri) {
-    $fname = md5("$method $key");
+    $fname = md5("$method $request_uri");
     return join(DIRECTORY_SEPARATOR, [$this->path, $fname . '.json']);
   }
 
