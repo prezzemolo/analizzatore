@@ -55,7 +55,8 @@ function parse_robots_txt (string $body, string $user_agent = null) {
           : '~(?:' . implode(')|(?:', $regexps_disallow_in_ss) . ')~',
       'Allow' =>
         count($regexps_allow_in_ss) === 0 ? null
-          : '~(?:' . implode(')|(?:', $regexps_allow_in_ss) . ')~'
+          : '~(?:' . implode(')|(?:', $regexps_allow_in_ss) . ')~',
+      'Instant' => false
     ];
   }, $f_s);
   // remove NULL in array
