@@ -38,6 +38,9 @@ function clawler (string $url, string $lang, string $user_agent = Constants::UA)
     ]
   ]);
 
+  // close cURL session
+  curl_close($curl_ch);
+
   // stop with status code greater than 400
   if ($result['status_code'] >= 400)
     throw new DenyException(500,

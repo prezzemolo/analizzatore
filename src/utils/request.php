@@ -24,12 +24,16 @@ function request_assemble_curl_headers ($request_headers) {
 
 // frontend of _request for options
 function request (string $method, string $url, array $options = []): array {
-  // create cURL session
+  // create cURL session, if not given
   $curl_ch = $options['curl_ch'] ?? curl_init();
   $headers = $options['headers'] ?? [];
   $body = $options['body'] ?? null;
   $follow_redirect = $options['follow_redirect'] ?? true;
-  return _request($curl_ch, $method, $url, $headers, $body, $follow_redirect);
+  $res = _request($curl_ch, $method, $url, $headers, $body, $follow_redirect);
+  // close cURL session, if session created by this function
+  if (!isset($options['curl_ch']))
+    curl_close($curl_ch);
+  return $res;
 }
 
 /**
@@ -83,8 +87,6 @@ function _request ($curl_ch, string $method, string $url, array $headers = [], ?
   // error handling
   if (($curl_errno = curl_errno($curl_ch)) !== 0)
     throw new RequestException(curl_error($curl_ch), $curl_errno);
-
-  curl_close($curl_ch);
 
   // cut header & body from raw response
   $raw_header = substr($response, 0, $informations['header_size']);

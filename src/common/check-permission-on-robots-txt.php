@@ -52,6 +52,8 @@ function check_indexing_permission_on_robots_txt (string $url, string $user_agen
     return is_allowable_indexing_by_rc($robot_configuration, $url);
   // if non configuration in store, get from internet
   try {
+    // custom max age of robot_configuration will be stored.
+    $robot_configuration_max_age = null;
     $robots_txt_response = request('GET', $robots_url, [
       'curl_ch' => $curl_ch,
       'headers' => [ 'User-Agent' => $user_agent ]
@@ -75,6 +77,8 @@ function check_indexing_permission_on_robots_txt (string $url, string $user_agen
       ($robots_txt_response['status_code'] >= 500)
     ) {
       $robot_configuration = $rc_instants['full_disallow'];
+      # 10 min
+      $robot_configuration_max_age = 10 * 60;
     } else {
       $robots = parse_robots_txt($robots_txt_response['body'], $user_agent);
       // todo: improvement detection logic
@@ -88,12 +92,14 @@ function check_indexing_permission_on_robots_txt (string $url, string $user_agen
      */
     if ($code !== 28) { throw $e; }
     /**
-     * in timeout, take as "full disallow". there are no references,
+     * in timeout, take as "full allow". there are no references,
      * this behiver was decided on its own.
      */
-    $robot_configuration = $rc_instants['full_disallow'];
+    $robot_configuration = $rc_instants['full_allow'];
+    # 5 min
+    $robot_configuration_max_age = 5 * 60;
   }
 
-  $store->save($robots_url, $robot_configuration);
+  $store->save($robots_url, $robot_configuration, $robot_configuration_max_age);
   return is_allowable_indexing_by_rc($robot_configuration, $url);
 }
