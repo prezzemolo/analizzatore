@@ -2,6 +2,8 @@
 
 namespace analizzatore\utils;
 
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'ex-string.php']);
+
 function robots_txt_pathvalue_to_regexp (string $v): string {
   $rv = preg_quote($v, '~');
   // enable '\*'
@@ -28,17 +30,18 @@ function parse_robots_txt (string $body, ?string $user_agent = null) {
     $regexps_allow_in_ss = array();
     foreach (preg_split('/\r?\n/', trim($content_in_ss)) as $v) {
       $line_in_content = trim($v);
-      // a line contains, skip
-      if (!trim($line_in_content)) continue;
-      // a line starts with '#', skip
+      # there are no content in a line, skip
+      if (!$line_in_content) continue;
+      # a line starts with '#', skip
       if (strpos($line_in_content, '#') === 0) continue;
       list($name_in_ra_in_ss, $val_in_ra_in_ss) = array_map('trim', explode(':', $line_in_content));
-      // check & cut off comments
-      if (($val_hash_position = strpos($val_in_ra_in_ss, '#')) !== false) {
-        // cut off comment
+      # check & cut off comments
+      if (($val_hash_position = strpos($val_in_ra_in_ss, '#')) !== false)
         $val_in_ra_in_ss = trim(substr($val_in_ra_in_ss, 0, $val_hash_position));
-      }
-      // check field name be in 'pathmemberfield'
+      # if not started with '/', add
+      if (!ExString::startsWith($val_in_ra_in_ss, '/'))
+        $val_in_ra_in_ss = '/' . $val_in_ra_in_ss;
+      # check field name be in 'pathmemberfield'
       switch (strtolower($name_in_ra_in_ss)) {
         case 'disallow':
           array_push($regexps_disallow_in_ss, robots_txt_pathvalue_to_regexp($val_in_ra_in_ss));
@@ -52,10 +55,10 @@ function parse_robots_txt (string $body, ?string $user_agent = null) {
       'User-Agent' => $uam,
       'Disallow' =>
         count($regexps_disallow_in_ss) === 0 ? null
-          : '~(?:' . implode(')|(?:', $regexps_disallow_in_ss) . ')~',
+          : '~(?:^' . implode(')|(?:^', $regexps_disallow_in_ss) . ')~',
       'Allow' =>
         count($regexps_allow_in_ss) === 0 ? null
-          : '~(?:' . implode(')|(?:', $regexps_allow_in_ss) . ')~',
+          : '~(?:^' . implode(')|(?:^', $regexps_allow_in_ss) . ')~',
       'Instant' => false
     ];
   }, $f_s);
