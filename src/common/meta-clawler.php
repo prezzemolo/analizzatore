@@ -4,95 +4,38 @@ namespace analizzatore\common;
 
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'constants.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'exceptions.php']);
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'robot-configuration-store.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'check-permission-on-robots-txt.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'request.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-url.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'ex-string.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'extractors.php']);
-require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'utils', 'robots-txt-parser.php']);
 
 use DOMDocument;
 use analizzatore\Constants;
-use analizzatore\common\RobotConfigurationStore;
 use analizzatore\utils\ExUrl;
 use analizzatore\utils\ExString;
 use analizzatore\exceptions\DenyException;
-use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor, parse_robots_txt};
-
-/**
- * robots.txt checker
- **/
-function robots_txt_checker (string $url): void {
-  $robots_url = ExUrl::join($url, '/robots.txt');
-  $store = new RobotConfigurationStore();
-  $robot_configuration = $store->find($robots_url);
-  // if non configuration in store, get from internet
-  if ($robot_configuration === null) {
-    $robots_txt_response = request('GET', $robots_url);
-    /**
-     * in 4xx, take as "full allow". refer to
-     * https://developers.google.com/search/reference/robots_txt
-     */
-    if (
-      (500 > $robots_txt_response['status_code']) and
-      ($robots_txt_response['status_code'] >= 400)
-    ) {
-      $robot_configuration = [
-        'User-Agent' => '~.*~',
-        'Allow' => '~(?:/.*)~',
-        'Disallow' => null,
-        'Instant' => true
-      ];
-    }
-    /**
-     * in 5xx, take as "full disallow". refer to
-     * https://developers.google.com/search/reference/robots_txt
-     */
-    else if (
-      (600 > $robots_txt_response['status_code']) and
-      ($robots_txt_response['status_code'] >= 500)
-    ) {
-      $robot_configuration = [
-        'User-Agent' => '~.*~',
-        'Allow' => null,
-        'Disallow' => '~(?:/.*)~',
-        'Instant' => true
-      ];
-    } else {
-      $robots = parse_robots_txt($robots_txt_response['body'], Constants::ANALIZZATORE_UA);
-      // todo: improvement detection logic
-      $robot_configuration = array_shift($robots) ?? [
-        'User-Agent' => '~.*~',
-        'Allow' => '~(?:/.*)~',
-        'Disallow' => null,
-        'Instant' => true
-      ];
-    }
-    $store->save($robots_url, $robot_configuration);
-  }
-  // regExp match checker
-  $robot_allowed = $robot_configuration['Allow'] === null ? false
-    : preg_match($robot_configuration['Allow'], $url) === 1;
-  $robot_disallowed = $robot_configuration['Disallow'] === null ? false
-    : preg_match($robot_configuration['Disallow'], $url) === 1;
-  // only 'disallowed' flag enabled, stop indexing.
-  if ($robot_disallowed && !$robot_allowed)
-    throw new DenyException(500,
-      "Indexing denial by 'robots.txt'.",
-      "Clawler can't continue indexing because 'robots.txt' has a 'disallow' entry.");
-  return;
-}
+use function analizzatore\utils\{request, ogp_extractor, metadata_extractor, rel_extractor};
 
 /**
  * metadata clawler
  */
-function clawler (string $url, string $lang) {
-  // check robots.txt
-  robots_txt_checker($url);
+function clawler (string $url, string $lang, string $user_agent = Constants::UA) {
+  // create cURL session for keep-alive
+  $curl_ch = curl_init();
+
+  // check indexing permission, on robots.txt
+  if (!check_indexing_permission_on_robots_txt($url, $user_agent, $curl_ch))
+    throw new DenyException(500,
+      "Indexing not permitted by 'robots.txt'.",
+      "Clawler can't continue indexing because 'robots.txt' has a 'disallow' entry.");
 
   $result = request('GET', $url, [
-    'Accept-Language' => $lang,
-    'User-Agent' => Constants::ANALIZZATORE_UA
+    'curl_ch' => $curl_ch,
+    'headers' => [
+      'Accept-Language' => $lang,
+      'User-Agent' => $user_agent
+    ]
   ]);
 
   // stop with status code greater than 400
@@ -160,11 +103,11 @@ function clawler (string $url, string $lang) {
       "Missing title in the response.",
       "Clawler can't find title in the response from url.");
 
-  // check meta robots
+  // check indexing permission, on meta robots
   $meta_robots = array_map('trim', explode(',', $metadata['robots'] ?? ''));
   if (in_array('noindex', $meta_robots))
     throw new DenyException(500,
-      "Indexing denial by meta 'robots' tag.",
+      "Indexing not permitted by meta 'robots' tag.",
       "Clawler can't continue indexing because meta 'robots' tag includes 'noindex' in the response from url.");
 
   /**

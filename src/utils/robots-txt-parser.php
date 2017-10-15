@@ -12,7 +12,7 @@ function robots_txt_pathvalue_to_regexp (string $v): string {
 }
 
 // return 'regexp' mathcer string, to use with REQUEST_URI
-function parse_robots_txt (string $body, string $user_agent = null) {
+function parse_robots_txt (string $body, ?string $user_agent = null) {
   $f_s = explode('User-agent:', $body);
   // drop first value, only need values related to 'User-agent'
   array_shift($f_s);

@@ -23,3 +23,4 @@ class DenyException extends Exception {
 }
 
 class HeadersReadOnlyException extends Exception {}
+class RequestException extends Exception {}

@@ -4,8 +4,10 @@ namespace analizzatore\utils;
 
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'bool-wrappers.php']);
 require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'headers.php']);
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'common', 'exceptions.php']);
 
 use Exception;
+use analizzatore\exceptions\RequestException;
 
 /**
  * request_assemble_headers
@@ -20,12 +22,22 @@ function request_assemble_curl_headers ($request_headers) {
   return $headers;
 }
 
-/**
- * request: cURL session wrapper.
- */
-function request (string $method, string $url, array $headers = [], string $body = null, bool $follow_redirect = true): array {
+// frontend of _request for options
+function request (string $method, string $url, array $options = []): array {
   // create cURL session
-  $curl_ch = curl_init($url);
+  $curl_ch = $options['curl_ch'] ?? curl_init();
+  $headers = $options['headers'] ?? [];
+  $body = $options['body'] ?? null;
+  $follow_redirect = $options['follow_redirect'] ?? true;
+  return _request($curl_ch, $method, $url, $headers, $body, $follow_redirect);
+}
+
+/**
+ * _request: cURL session wrapper.
+ */
+function _request ($curl_ch, string $method, string $url, array $headers = [], ?string $body = null, bool $follow_redirect = true): array {
+  // set URL
+  curl_setopt($curl_ch, CURLOPT_URL, $url);
 
   // enable HTTP/2 if supported
   if (defined('CURL_HTTP_VERSION_2_0'))
@@ -43,7 +55,7 @@ function request (string $method, string $url, array $headers = [], string $body
   if (isset($body)) {
     // block human error!!!!!
     if (strcasecmpbool($method, 'GET'))
-      throw new Exception('You can not set body when uses GET method.');
+      throw new RequestException('no one can set body when uses GET method.');
     curl_setopt($curl_ch, CURLOPT_POSTFIELDS, $body);
   }
 
@@ -69,8 +81,8 @@ function request (string $method, string $url, array $headers = [], string $body
   $informations = curl_getinfo($curl_ch);
 
   // error handling
-  if (curl_errno($curl_ch) !== 0)
-    throw new Exception(curl_error($curl_ch));
+  if (($curl_errno = curl_errno($curl_ch)) !== 0)
+    throw new RequestException(curl_error($curl_ch), $curl_errno);
 
   curl_close($curl_ch);
 
