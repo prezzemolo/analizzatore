@@ -35,7 +35,8 @@ try {
   main();
 } catch (DenyException $e) {
   if ($main_executable) $store->save($e, $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-  header(sprintf('AN-DES: %s', $main_executable ? 'MISS' : 'HIT'));
+  # analizzatore deny exception cache status header
+  header(sprintf('Az-De-Cache-Status: %s', $main_executable ? 'MISS' : 'HIT'));
   header('Content-Type: application/problem+json');
   http_response_code($e->getStatus());
   echo json_encode([

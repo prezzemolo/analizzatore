@@ -16,8 +16,11 @@ use analizzatore\common\ResponseStore;
 use function analizzatore\common\clawler;
 
 // commonize header sender, and echo response JSON
-function send (array $document) {
+function send (array $document, bool $not_modified = false, bool $in_cache = false): void {
   // set headers
+  # send the cache status
+  header(sprintf('Az-Cache-Status: %s', $in_cache ? 'HIT' : 'MISS'));
+
   /**
    * Q. why gmdate & GMT used?
    * A. for following IMF-fixdate.
@@ -33,15 +36,25 @@ function send (array $document) {
   header(sprintf('Last-Modified: %s GMT',
     gmdate('D, d M Y H:i:s', $document['timestamp'])
   ));
-  # one day cache
-  header(sprintf('Cache-control: public, max-age=%d', 24 * 60 * 60));
-  header(sprintf('Expires: %s GMT',
-    gmdate('D, d M Y H:i:s', $document['timestamp'] + 24 * 60 * 60)
-  ));
-  header('Content-Type: application/json');
+
+  if ($not_modified) {
+    http_response_code(304);
+    return;
+  }
+
+  # edge servers can be able to store encoded responses
   header('Vary: Accept-Encoding');
 
+  # 1 day cache
+  $expire_in = $document['timestamp'] + 24 * 60 * 60;
+  $max_age_from_now = $expire_in - time();
+  header(sprintf('Cache-control: public, max-age=%d', $max_age_from_now));
+  header(sprintf('Expires: %s GMT',
+    gmdate('D, d M Y H:i:s', $expire_in)
+  ));
+
   // returns JSONize response to user
+  header('Content-Type: application/json');
   echo json_encode($document['metadata']);
 }
 
@@ -99,18 +112,13 @@ function main () {
   // use the cache store
   $store = new ResponseStore();
   $document = $store->find($url, $lang);
-  if ($document !== null) {
-    if ($document['fresh']) {
-      // check 'if-modified-since', browser side cache header
-      if (
-        isset($headers['if-modified-since'])
-        and (new DateTime($headers['if-modified-since']))->getTimestamp() === $document['timestamp']
-      ) {
-        http_response_code(304);
-        return;
-      }
-      return send($document);
-    }
+  if ($document !== null && $document['fresh']) {
+    return send($document,
+    # with 'if-modified-since', check timestamp & judge not modified
+    (
+      isset($headers['if-modified-since'])
+      and (new DateTime($headers['if-modified-since']))->getTimestamp() === $document['timestamp']
+    ), true);
   }
 
   $document = clawler($url, $lang);
