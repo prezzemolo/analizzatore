@@ -22,12 +22,14 @@ class RobotConfigurationStore {
     $raw_content = fread($fp, filesize($path));
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
-    // check exceptions in cache store newer than 12 hour ago
-    if (!(time() - 12 * 60 * 60 <= $content['state']['timestamp'])) return null;
+    // by default, the max age of stored content is 12 hour.
+    $max_age = $content['state']['max_age'] ?? 12 * 60 * 60;
+    // check exceptions in cache store newer than $max_age seconds ago
+    if (!(time() - $max_age <= $content['state']['timestamp'])) return null;
     return $content['block'];
   }
 
-  public function save (string $key, array $detected_parsed_block): bool {
+  public function save (string $key, array $detected_parsed_block, ?int $max_age = null): bool {
     $path = $this->gen_path($key);
     // create directory
     if (!file_exists(dirname($path))) mkdir(dirname($path), 0700, TRUE);
@@ -36,7 +38,8 @@ class RobotConfigurationStore {
       'block' => $detected_parsed_block,
       'state' => [
         'key' => $key,
-        'timestamp' => time()
+        'timestamp' => time(),
+        'max_age' => $max_age
       ]
     ], JSON_PRETTY_PRINT);
     $byte = fwrite($fp, $json);

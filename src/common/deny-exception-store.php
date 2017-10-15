@@ -26,12 +26,14 @@ class DenyExceptionStore {
     $raw_content = fread($fp, filesize($path));
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
-    // check exceptions in cache store newer than 1 hour ago
-    if (!(time() - 60 * 60 <= $content['state']['timestamp'])) return null;
+    // by default, the max age of stored content is 1 hour.
+    $max_age = $content['state']['max_age'] ?? 60 * 60;
+    // check exceptions in cache store newer than $max_age seconds ago
+    if (!(time() - $max_age <= $content['state']['timestamp'])) return null;
     return new DenyException($content['status'], $content['title'], $content['message']);
   }
 
-  public function save (DenyException $error, string $method, string $request_uri): bool {
+  public function save (DenyException $error, string $method, string $request_uri, ?int $max_age = null): bool {
     $path = $this->gen_path($method, $request_uri);
     // create directory
     if (!file_exists(dirname($path))) mkdir(dirname($path), 0700, TRUE);
@@ -43,7 +45,8 @@ class DenyExceptionStore {
       'state' => [
         'method' => $method,
         'request_uri' => $request_uri,
-        'timestamp' => time()
+        'timestamp' => time(),
+        'max_age' => $max_age
       ]
     ], JSON_PRETTY_PRINT);
     $byte = fwrite($fp, $json);
