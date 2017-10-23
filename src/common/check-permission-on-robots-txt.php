@@ -28,12 +28,12 @@ $rc_instants = [
   ]
 ];
 
-function is_allowable_indexing_by_rc (array $robot_configuration, string $url): bool {
+function is_allowable_indexing_by_rc (array $robot_configuration, string $path): bool {
   // regExp match checker
   $robot_allowed = $robot_configuration['Allow'] === null ? false
-    : preg_match($robot_configuration['Allow'], $url) === 1;
+    : preg_match($robot_configuration['Allow'], $path) === 1;
   $robot_disallowed = $robot_configuration['Disallow'] === null ? false
-    : preg_match($robot_configuration['Disallow'], $url) === 1;
+    : preg_match($robot_configuration['Disallow'], $path) === 1;
   // only 'disallowed' flag enabled, disallowed, as false.
   return !($robot_disallowed && !$robot_allowed);
 }
@@ -101,5 +101,8 @@ function check_indexing_permission_on_robots_txt (string $url, string $user_agen
   }
 
   $store->save($robots_url, $robot_configuration, $robot_configuration_max_age);
-  return is_allowable_indexing_by_rc($robot_configuration, $url);
+
+  $path = parse_url($url, PHP_URL_PASS);
+
+  return is_allowable_indexing_by_rc($robot_configuration, $path);
 }
