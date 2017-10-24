@@ -29,7 +29,7 @@ class DenyExceptionStore {
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
     // if $content.state.version isn't compatible with Constant::VERSION, reject
-    if ($content['state']['version'] !== Constant::VERSION) return null;
+    if ($content['state']['version'] !== Constants::VERSION) return null;
     // by default, the max age of stored content is 1 hour.
     $max_age = $content['state']['max_age'] ?? 60 * 60;
     // check exceptions in cache store newer than $max_age seconds ago

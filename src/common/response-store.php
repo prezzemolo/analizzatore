@@ -27,7 +27,7 @@ class ResponseStore {
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
     // if $content.state.version isn't compatible with Constant::VERSION, reject
-    if ($content['state']['version'] !== Constant::VERSION) return null;
+    if ($content['state']['version'] !== Constants::VERSION) return null;
     // by default, the max age of stored content is 1 day.
     $max_age = $content['state']['max_age'] ?? 24 * 60 * 60;
     return array_merge([
