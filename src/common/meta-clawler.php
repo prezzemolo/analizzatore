@@ -59,7 +59,7 @@ function clawler (string $url, string $lang, string $user_agent = Constants::UA)
   preg_match('[<meta\shttp-equiv="content-type"\scontent="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
     $content = $matches[1];
-    preg_match('/charset=([^ ;]*)/', $matches[1], $matches);
+    preg_match('/charset=([^\s;]*)/', $matches[1], $matches);
     if (isset($matches[1])) $charset = $matches[1];
   }
   # from charset (override http-equiv)
