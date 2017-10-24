@@ -56,14 +56,14 @@ function clawler (string $url, string $lang, string $user_agent = Constants::UA)
   // detect charset
   $charset = 'UTF-8';
   # from http-equiv
-  preg_match('[<meta http-equiv="content-type" content="(.*?)"]i', $result['body'], $matches);
+  preg_match('[<meta\shttp-equiv="content-type"\scontent="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
     $content = $matches[1];
     preg_match('/charset=([^ ;]*)/', $matches[1], $matches);
     if (isset($matches[1])) $charset = $matches[1];
   }
   # from charset (override http-equiv)
-  preg_match('[<meta charset="(.*?)"]', $result['body'], $matches);
+  preg_match('[<meta\scharset="(.*?)"]', $result['body'], $matches);
   if (isset($matches[1])) $charset = $matches[1];
   # convert to lowercase for search
   $charset = strtolower($charset);
@@ -73,7 +73,8 @@ function clawler (string $url, string $lang, string $user_agent = Constants::UA)
   }
   # userland aliases detection
   $charset = [
-    'shift_jis' => 'sjis'
+    'shift_jis' => 'sjis',
+    'x-sjis' => 'sjis',
   ][$charset] ?? $charset;
   # check loadable in the running environment
   $encoding = array_key_exists($charset, $encodings)
