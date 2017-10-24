@@ -3,7 +3,7 @@
 namespace analizzatore;
 
 class Constants {
-  const VERSION = '0.4.3';
+  const VERSION = '0.4.4';
   const UA =
     'Mozilla/5.0 (compatible; analizzatore/'
     . self::VERSION
