@@ -2,6 +2,10 @@
 
 namespace analizzatore\common;
 
+require_once join(DIRECTORY_SEPARATOR, [__DIR__, 'constants.php']);
+
+use analizzatore\Constants;
+
 class RobotConfigurationStore {
   private $path;
 
@@ -22,6 +26,8 @@ class RobotConfigurationStore {
     $raw_content = fread($fp, filesize($path));
     fclose($fp);
     $content = json_decode($raw_content, TRUE);
+    // if $content.state.version isn't compatible with Constant::VERSION, reject
+    if ($content['state']['version'] !== Constant::VERSION) return null;
     // by default, the max age of stored content is 12 hour.
     $max_age = $content['state']['max_age'] ?? 12 * 60 * 60;
     // check exceptions in cache store newer than $max_age seconds ago
@@ -39,7 +45,8 @@ class RobotConfigurationStore {
       'state' => [
         'key' => $key,
         'timestamp' => time(),
-        'max_age' => $max_age
+        'max_age' => $max_age,
+        'version' => Constants::VERSION
       ]
     ], JSON_PRETTY_PRINT);
     $byte = fwrite($fp, $json);
