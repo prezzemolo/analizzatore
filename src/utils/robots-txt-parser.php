@@ -38,7 +38,9 @@ function parse_robots_txt (string $body, ?string $user_agent = null) {
       # check & cut off comments
       if (($val_hash_position = strpos($val_in_ra_in_ss, '#')) !== false)
         $val_in_ra_in_ss = trim(substr($val_in_ra_in_ss, 0, $val_hash_position));
-      # if not started with '/', add
+      # if value is empty, skip
+      if (empty($val_in_ra_in_ss)) continue;
+      # if value is not started with '/', add
       if (!ExString::startsWith($val_in_ra_in_ss, '/'))
         $val_in_ra_in_ss = '/' . $val_in_ra_in_ss;
       # check field name be in 'pathmemberfield'
