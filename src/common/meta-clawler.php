@@ -58,12 +58,11 @@ function clawler (string $url, string $lang, string $user_agent = Constants::UA)
   # from http-equiv
   preg_match('[<meta\shttp-equiv="content-type"\scontent="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) {
-    $content = $matches[1];
-    preg_match('/charset=([^\s;]*)/', $matches[1], $matches);
+    preg_match('/charset=([^\s;]*)/i', $matches[1], $matches);
     if (isset($matches[1])) $charset = $matches[1];
   }
   # from charset (override http-equiv)
-  preg_match('[<meta\scharset="(.*?)"]', $result['body'], $matches);
+  preg_match('[<meta\scharset="(.*?)"]i', $result['body'], $matches);
   if (isset($matches[1])) $charset = $matches[1];
   # convert to lowercase for search
   $charset = strtolower($charset);
